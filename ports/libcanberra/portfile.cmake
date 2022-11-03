@@ -1,7 +1,7 @@
 if(VCPKG_TARGET_IS_OSX)
     message("${PORT} currently requires the following libraries from the system package manager:\n    automake\n    libtool\n\nThey can be installed with brew install automake libtool")
 else()
-    message("${PORT} currently requires the following libraries from the system package manager:\n    automake\n    libtool\n    ltdl-dev\n\nThey can be installed with apt-get install automake libtool ltdl-dev")
+    message("${PORT} currently requires the following libraries from the system package manager:\n    automake\n    libtool\n\nThey can be installed with apt-get install automake libtool")
 endif()
 
 vcpkg_download_distfile(ARCHIVE
@@ -36,14 +36,7 @@ foreach(feature IN ITEMS alsa gstreamer gtk3 null oss pulse)
 endforeach()
 
 if(VCPKG_TARGET_IS_OSX)
-    execute_process(
-         COMMAND brew --prefix libtool
-         OUTPUT_VARIABLE BREW_LIBTOOL_PATH
-         OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
     vcpkg_list(APPEND OPTIONS
-        "CPPFLAGS=-I${BREW_LIBTOOL_PATH}/include"
-        "LTDL_LDFLAGS=-L${BREW_LIBTOOL_PATH}/lib"
         cc_cv_LDFLAGS__Wl___as_needed=no
         cc_cv_LDFLAGS__Wl___gc_sections=no
     )
