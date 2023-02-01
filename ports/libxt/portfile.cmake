@@ -37,7 +37,7 @@ if(VCPKG_LIBRARY_LINKAGE STREQUAL "dynamic" AND VCPKG_TARGET_IS_WINDOWS)
 endif()
 
 if(VCPKG_TARGET_IS_WINDOWS AND NOT VCPKG_TARGET_IS_MINGW)
-    z_vcpkg_get_cmake_vars(cmake_vars_file)
+    z_vcpkg_get_cmake_vars(cmake_vars_file CALLER "vcpkg_configure_make")
     include("${cmake_vars_file}")
     if(VCPKG_DETECTED_CMAKE_C_COMPILER_ID STREQUAL "MSVC")
         vcpkg_find_acquire_program(CLANG)
