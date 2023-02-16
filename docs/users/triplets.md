@@ -138,6 +138,11 @@ See the [`"supports"`](../maintainers/manifest-files.md#supports) manifest file 
 
 When this option is set to (true|1|on), the compiler is ignored in the abi tracking.
 
+### VCPKG_(PRE|POST)_PORTFILE_INCLUDES
+
+List of cmake files to include (before|after) the portfile is included. 
+Can be used to setup the environment or change the build artifacts after they have been etablished.
+
 ## Windows Variables
 
 <a name="VCPKG_ENV_PASSTHROUGH"></a>
