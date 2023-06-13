@@ -10,7 +10,7 @@ vcpkg_from_github(
     PATCHES ${PATCHES}
 )
 
-vcpkg_find_acquire_program(PYTHON3)
+vcpkg_find_acquire_python3_interpreter(PYTHON3)
 
 # Prevent KDEClangFormat from writing to source effectively blocking parallel configure
 file(WRITE "${SOURCE_PATH}/.clang-format" "DisableFormat: true\nSortIncludes: false\n")
