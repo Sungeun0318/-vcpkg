@@ -25,6 +25,7 @@ vcpkg_from_github(
         declspec-align.patch
         qt-msvc.patch
         script-prefix.patch
+        asm-armcap.patch
         windows/install-layout.patch
         windows/install-pdbs.patch
         unix/android-cc.patch
