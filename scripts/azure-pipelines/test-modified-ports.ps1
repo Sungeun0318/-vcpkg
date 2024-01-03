@@ -127,6 +127,18 @@ if ($IsWindows)
     rmdir empty
 }
 
+if ($IsLinuxHost)
+{
+    Write-Host "Downloading Android SDK"
+    & apt-get -y --no-install-recommends install default-jre
+    & "./vcpkg" x-download android-sdk.zip "--sha512=64b7d18ee7adeb1204eaa2978091e874dc9af9604796b64e1a185a11c15325657383fc9900e55e4590c8b8a2784b3881745d2f32daef1207e746c0ee41c2b72b" "--url=https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip" @cachingArgs
+    Write-Host "Setting up SDK"
+    & unzip -q android-sdk.zip -d android-sdk
+    $env:ANDROID_SDK_ROOT = Join-Path $Pwd "android-sdk"
+    & ./android-sdk/cmdline-tools/bin/sdkmanager "platforms;android-33"
+    $NoParentHashes = $true
+}
+
 & "./vcpkg$executableExtension" x-ci-clean @commonArgs
 if ($LASTEXITCODE -ne 0)
 {

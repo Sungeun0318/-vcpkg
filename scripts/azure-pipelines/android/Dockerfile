@@ -1,6 +1,7 @@
 # syntax=docker/dockerfile:1.4
 FROM ubuntu:20.04
 
+ADD https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip /android-sdk-10406996.zip
 ADD https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb /packages-microsoft-prod.deb
 ADD https://dl.google.com/android/repository/android-ndk-r25c-linux.zip /android-ndk-r25c-linux.zip
 
@@ -35,6 +36,9 @@ ENV APT_PACKAGES="$APT_PACKAGES libxext-dev libxfixes-dev libxrender-dev \
 ## PowerShell
 ENV APT_PACKAGES="$APT_PACKAGES powershell"
 
+## qtbase for android
+ENV APT_PACKAGES="$APT_PACKAGES default-jre"
+
 RUN <<END_OF_SCRIPT bash
 export DEBIAN_FRONTEND=noninteractive
 
@@ -58,8 +62,16 @@ apt-get -y --no-install-recommends install $APT_PACKAGES
 # Android NDK
 unzip /android-ndk-r25c-linux.zip
 rm -f android-ndk-r25c-linux.zip
+
+# Android SDK
+unzip /android-sdk-10406996.zip -d android-sdk
+rm -f android-sdk-10406996.zip
+
+/android-sdk/cmdline-tools/bin/sdkmanager "platforms;android-33"
+
 END_OF_SCRIPT
 
 ENV ANDROID_NDK_HOME /android-ndk-r25c
+ENV ANDROID_SDK_ROOT /android-sdk
 
 WORKDIR /vcpkg
