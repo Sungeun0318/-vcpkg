@@ -37,9 +37,10 @@ ENV APT_PACKAGES="$APT_PACKAGES libxext-dev libxfixes-dev libxrender-dev \
 ENV APT_PACKAGES="$APT_PACKAGES powershell"
 
 ## qtbase for android
-ENV APT_PACKAGES="$APT_PACKAGES default-jre"
+ENV APT_PACKAGES="$APT_PACKAGES  openjdk-17-jre-headless openjdk-17-jdk-headless"
 
 RUN <<END_OF_SCRIPT bash
+set -e
 export DEBIAN_FRONTEND=noninteractive
 
 # Apt prereqs itself
@@ -67,8 +68,12 @@ rm -f android-ndk-r25c-linux.zip
 unzip /android-sdk-10406996.zip -d android-sdk
 rm -f android-sdk-10406996.zip
 
-/android-sdk/cmdline-tools/bin/sdkmanager "platforms;android-33"
-
+shopt -s extglob
+mkdir /android-sdk/cmdline-tools/latest
+# https://stackoverflow.com/questions/65262340/cmdline-tools-could-not-determine-sdk-root
+mv /android-sdk/cmdline-tools/!(latest) /android-sdk/cmdline-tools/latest
+yes | /android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
+/android-sdk/cmdline-tools/latest/bin/sdkmanager "platforms;android-33" "build-tools;29.0.2" "platform-tools" "tools"
 END_OF_SCRIPT
 
 ENV ANDROID_NDK_HOME /android-ndk-r25c
