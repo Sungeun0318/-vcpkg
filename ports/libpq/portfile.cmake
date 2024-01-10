@@ -1,7 +1,7 @@
 vcpkg_download_distfile(ARCHIVE
     URLS "https://ftp.postgresql.org/pub/source/v${VERSION}/postgresql-${VERSION}.tar.bz2"
     FILENAME "postgresql-${VERSION}.tar.bz2"
-    SHA512 c66b72d2d9bc503b9ad19c67384517ae921c494b2916f32157c2528dcbb38aefeb4a8cd5003fd40ba8a19612ea64511d534ff5d99e7a1b266024232f983bcf39
+    SHA512 69f4635e5841452599f13b47df41ce2425ab34b4e4582fd2c635bc78d561fa36c5b03eccb4ae6569872dc74775be1b5a62dee20c9a4f12a43339250128352918
 )
 
 vcpkg_extract_source_archive(
@@ -9,7 +9,7 @@ vcpkg_extract_source_archive(
     ARCHIVE "${ARCHIVE}"
     PATCHES
         unix/installdirs.patch
-        unix/fix-configure.patch
+        #unix/fix-configure.patch
         unix/single-linkage.patch
         unix/no-server-tools.patch
         unix/mingw-install.patch
@@ -122,6 +122,7 @@ else()
                 7550b843964744607f736a7138f10c6cd92489406a1b84ac71d9a9d8aa16bc69048aa1b24e1f49291b010347047008194c334ca9c632e17fa8245e85549e3c7a
         OPTIONS
             ${BUILD_OPTS}
+            "cross_compiling=yes"
         OPTIONS_DEBUG
             --enable-debug
     )
