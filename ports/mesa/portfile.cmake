@@ -10,7 +10,7 @@ vcpkg_from_gitlab(
     REF mesa-${VERSION}
     SHA512 96f7602c98d532a269116bd5d3f9cbe87ca4425b309467cc19f83277a0faaa9804edea72dcaeb6f7774cac17790d5d76b58c357ef639cb6064e7480d93b861bf
     FILE_DISAMBIGUATOR 1
-    HEAD_REF master
+    HEAD_REF main
     PATCHES
         gallium-fix-build-with-llvm-17.patch
         clover-llvm-move-to-modern-pass-manager.patch
@@ -99,8 +99,9 @@ vcpkg_configure_meson(
         -Dglx=disabled
         -Dlibunwind=disabled
         -Dlmsensors=disabled
-        -Dshared-llvm=auto
+        -Dshared-llvm=disabled  # disable autodetection - fails; llvm is ONLY_STATIC_LIBRARY
         -Dvalgrind=disabled
+        -Dvulkan-drivers=[]     # disable autodetection - drivers have deps
         -Dzstd=enabled
         ${MESA_OPTIONS}
     )
