@@ -89,6 +89,14 @@
           "name": "llvm",
           "default-features": false,
           "features": [
+            "target-amdgpu"
+          ],
+          "platform": "!arm"
+        },
+        {
+          "name": "llvm",
+          "default-features": false,
+          "features": [
             "target-x86"
           ],
           "platform": "x64 | x86"
