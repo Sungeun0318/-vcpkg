@@ -12,6 +12,7 @@ vcpkg_from_gitlab(
     FILE_DISAMBIGUATOR 1
     HEAD_REF main
     PATCHES
+        dependencies.patch
         gallium-fix-build-with-llvm-17.patch
         clover-llvm-move-to-modern-pass-manager.patch
 )
@@ -77,7 +78,11 @@ else()
     list(APPEND MESA_OPTIONS -Degl=disabled)
 endif()
 
-list(APPEND MESA_OPTIONS -Dshared-glapi=enabled)  #shared GLAPI required when building two or more of the following APIs - opengl, gles1 gles2
+if(NOT "vulkan" IN_LIST FEATURES) # EGL feature only works on Linux
+    list(APPEND MESA_OPTIONS -Dvulkan-drivers=[])
+elseif(EXISTS "${CURRENT_HOST_INSTALLED_DIR}/tools/glslang")
+    vcpkg_list(APPEND MESA_ADDITIONAL_BINARIES "glslangValidator = '${CURRENT_HOST_INSTALLED_DIR}/tools/glslang/glslangValidator${VCPKG_HOST_EXECUTABLE_SUFFIX}'")
+endif()
 
 if(VCPKG_TARGET_IS_WINDOWS)
     list(APPEND MESA_OPTIONS -Dplatforms=['windows'])
@@ -86,6 +91,8 @@ if(VCPKG_TARGET_IS_WINDOWS)
         set(VCPKG_CXX_FLAGS "/D_CRT_DECLARE_NONSTDC_NAMES ${VCPKG_CXX_FLAGS}")
         set(VCPKG_C_FLAGS "/D_CRT_DECLARE_NONSTDC_NAMES ${VCPKG_C_FLAGS}")
     endif()
+elseif(VCPKG_TARGET_IS_ANDROID)
+    list(APPEND MESA_OPTIONS -Dplatforms=['android'])
 endif()
 
 vcpkg_configure_meson(
@@ -99,12 +106,14 @@ vcpkg_configure_meson(
         -Dglx=disabled
         -Dlibunwind=disabled
         -Dlmsensors=disabled
+        -Dshared-glapi=enabled  # required for egl and when building two or more of the following APIs - opengl, gles1 gles2
         -Dshared-llvm=disabled  # disable autodetection - fails; llvm is ONLY_STATIC_LIBRARY
         -Dvalgrind=disabled
-        -Dvulkan-drivers=[]     # disable autodetection - drivers have deps
         -Dzstd=enabled
         ${MESA_OPTIONS}
-    )
+    ADDITIONAL_BINARIES
+        ${MESA_ADDITIONAL_BINARIES}
+)
 vcpkg_install_meson()
 vcpkg_fixup_pkgconfig()
 
@@ -127,7 +136,7 @@ if(NOT remaining)
     file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/include")
 endif()
 
-if(VCPKG_TARGET_IS_WINDOWS)
+if(VCPKG_TARGET_IS_WINDOWS AND "opengl" IN_LIST FEATURES)
     # opengl32.lib is already installed by port opengl.
     # Mesa claims to provide a drop-in replacement of opengl32.dll.
     file(MAKE_DIRECTORY "${CURRENT_PACKAGES_DIR}/lib/manual-link")
@@ -138,7 +147,7 @@ if(VCPKG_TARGET_IS_WINDOWS)
     endif()
 endif()
 
-if(FEATURES STREQUAL "core")
+if(NOT EXISTS "${CURRENT_PACKAGES_DIR}/debug/lib")
     file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug")
 endif()
 

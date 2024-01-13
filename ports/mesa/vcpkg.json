@@ -59,7 +59,7 @@
       ]
     },
     "llvm": {
-      "description": "Build with llvmpipe",
+      "description": "Build with LLVM",
       "dependencies": [
         {
           "name": "llvm",
@@ -119,6 +119,19 @@
       "description": "Build support for OpenGL (all versions)",
       "dependencies": [
         "opengl"
+      ]
+    },
+    "vulkan": {
+      "description": "Build support for Vulkan",
+      "dependencies": [
+        {
+          "name": "glslang",
+          "default-features": false,
+          "features": [
+            "tools"
+          ],
+          "platform": "arm | x64 | x86"
+        }
       ]
     }
   }
