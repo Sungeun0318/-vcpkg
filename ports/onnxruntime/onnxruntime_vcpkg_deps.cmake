@@ -53,8 +53,8 @@ if (onnxruntime_ENABLE_CPUINFO)
 endif()
 
 if (NOT WIN32)
-  find_package(nsync CONFIG REQUIRED)
-  list(APPEND onnxruntime_EXTERNAL_LIBRARIES nsync::nsync_cpp)
+  find_package(unofficial-nsync CONFIG REQUIRED)
+  list(APPEND onnxruntime_EXTERNAL_LIBRARIES unofficial::nsync::nsync_cpp)
 endif()
 
 find_package(Microsoft.GSL CONFIG REQUIRED)
