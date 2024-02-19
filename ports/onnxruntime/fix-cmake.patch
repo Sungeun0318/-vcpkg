@@ -1,5 +1,5 @@
 diff --git a/cmake/CMakeLists.txt b/cmake/CMakeLists.txt
-index 94d650f..19d8e0c 100644
+index 94d650f..5d9c83e 100644
 --- a/cmake/CMakeLists.txt
 +++ b/cmake/CMakeLists.txt
 @@ -36,7 +36,7 @@ set(CMAKE_C_STANDARD 99)
@@ -46,7 +46,21 @@ index 94d650f..19d8e0c 100644
      endif()
      foreach(ORT_FLAG ${ORT_PROVIDER_FLAGS})
        target_compile_definitions(${target_name} PRIVATE ${ORT_FLAG})
-@@ -1473,7 +1474,8 @@ if (onnxruntime_USE_DML)
+@@ -1370,13 +1371,7 @@ endif()
+ set(ORT_BUILD_INFO "ORT Build Info: ")
+ find_package(Git)
+ if (Git_FOUND)
+-  execute_process(COMMAND ${GIT_EXECUTABLE} log -1 --format=%h
+-      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+-      OUTPUT_VARIABLE ORT_GIT_COMMIT)
+   string(STRIP "${ORT_GIT_COMMIT}" ORT_GIT_COMMIT)
+-  execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --abbrev-ref HEAD
+-      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+-      OUTPUT_VARIABLE ORT_GIT_BRANCH)
+   string(STRIP "${ORT_GIT_BRANCH}" ORT_GIT_BRANCH)
+   string(APPEND ORT_BUILD_INFO "git-branch=${ORT_GIT_BRANCH}, git-commit-id=${ORT_GIT_COMMIT}, ")
+ endif()
+@@ -1473,7 +1468,8 @@ if (onnxruntime_USE_DML)
      message(FATAL_ERROR "The DirectML execution provider is only supported when building for Windows.")
    endif()
  
@@ -57,7 +71,7 @@ index 94d650f..19d8e0c 100644
  
  if (onnxruntime_ENABLE_TRAINING_APIS)
 diff --git a/cmake/onnxruntime.cmake b/cmake/onnxruntime.cmake
-index c900f4d..35c18e1 100644
+index c900f4d..c4e012f 100644
 --- a/cmake/onnxruntime.cmake
 +++ b/cmake/onnxruntime.cmake
 @@ -303,6 +303,9 @@ if(onnxruntime_BUILD_APPLE_FRAMEWORK)
@@ -70,42 +84,7 @@ index c900f4d..35c18e1 100644
      GET_TARGET_PROPERTY(_LIB_TYPE ${_LIB} TYPE)
      if(_LIB_TYPE STREQUAL "STATIC_LIBRARY")
        set(CUR_STATIC_LIB_OBJ_DIR ${STATIC_LIB_TEMP_DIR}/$<TARGET_LINKER_FILE_BASE_NAME:${_LIB}>)
-diff --git a/cmake/onnxruntime_providers_xnnpack.cmake b/cmake/onnxruntime_providers_xnnpack.cmake
-index 9c00703..eca3845 100644
---- a/cmake/onnxruntime_providers_xnnpack.cmake
-+++ b/cmake/onnxruntime_providers_xnnpack.cmake
-@@ -15,7 +15,7 @@
-   source_group(TREE ${REPO_ROOT} FILES ${onnxruntime_providers_xnnpack_cc_srcs})
-   onnxruntime_add_static_library(onnxruntime_providers_xnnpack ${onnxruntime_providers_xnnpack_cc_srcs})
-   onnxruntime_add_include_to_target(onnxruntime_providers_xnnpack
--    onnxruntime_common onnxruntime_framework onnx onnx_proto ${PROTOBUF_LIB} XNNPACK pthreadpool
-+    onnxruntime_common onnxruntime_framework onnx onnx_proto ${PROTOBUF_LIB} xnnpack
-     flatbuffers::flatbuffers Boost::mp11 safeint_interface
-   )
- 
-diff --git a/cmake/tensorboard/compat/proto/CMakeLists.txt b/cmake/tensorboard/compat/proto/CMakeLists.txt
-index ad31e40..e6254ff 100644
---- a/cmake/tensorboard/compat/proto/CMakeLists.txt
-+++ b/cmake/tensorboard/compat/proto/CMakeLists.txt
-@@ -1,13 +1,6 @@
- # Copyright (c) Microsoft Corporation. All rights reserved.
- # Licensed under the MIT License.
- 
--FetchContent_Declare(
--  tensorboard
--  URL ${DEP_URL_tensorboard}
--  URL_HASH SHA1=${DEP_SHA1_tensorboard}
--)
--FetchContent_MakeAvailable(tensorboard)
--
- set(TENSORBOARD_ROOT ${tensorboard_SOURCE_DIR})
- 
- # tensorboard protos
-diff --git a/cmake/onnxruntime.cmake b/cmake/onnxruntime.cmake
-index 35c18e1..c4e012f 100644
---- a/cmake/onnxruntime.cmake
-+++ b/cmake/onnxruntime.cmake
-@@ -320,6 +320,9 @@ if(onnxruntime_BUILD_APPLE_FRAMEWORK)
+@@ -317,6 +320,9 @@ if(onnxruntime_BUILD_APPLE_FRAMEWORK)
  
    # for external libraries we create a symlink to the .a file
    foreach(_LIB ${onnxruntime_EXTERNAL_LIBRARIES})
@@ -128,3 +107,34 @@ index e26f0bf..5b9a02b 100644
    target_include_directories(onnxruntime_providers_openvino SYSTEM PUBLIC ${ONNXRUNTIME_ROOT} ${CMAKE_CURRENT_BINARY_DIR} ${eigen_INCLUDE_DIRS} ${OpenVINO_INCLUDE_DIR} ${OPENVINO_INCLUDE_DIR_LIST} ${PYTHON_INCLUDE_DIRS} $ENV{OPENCL_INCS} $ENV{OPENCL_INCS}/../../cl_headers/)
    target_link_libraries(onnxruntime_providers_openvino ${ONNXRUNTIME_PROVIDERS_SHARED} Boost::mp11 ${OPENVINO_LIB_LIST} ${ABSEIL_LIBS})
  
+diff --git a/cmake/onnxruntime_providers_xnnpack.cmake b/cmake/onnxruntime_providers_xnnpack.cmake
+index 9c00703..65fb9f1 100644
+--- a/cmake/onnxruntime_providers_xnnpack.cmake
++++ b/cmake/onnxruntime_providers_xnnpack.cmake
+@@ -15,7 +15,7 @@
+   source_group(TREE ${REPO_ROOT} FILES ${onnxruntime_providers_xnnpack_cc_srcs})
+   onnxruntime_add_static_library(onnxruntime_providers_xnnpack ${onnxruntime_providers_xnnpack_cc_srcs})
+   onnxruntime_add_include_to_target(onnxruntime_providers_xnnpack
+-    onnxruntime_common onnxruntime_framework onnx onnx_proto ${PROTOBUF_LIB} XNNPACK pthreadpool
++    onnxruntime_common onnxruntime_framework onnx onnx_proto ${PROTOBUF_LIB} ${XNNPACK_LIBRARY} ${PTHREADPOOL_LIBRARY}
+     flatbuffers::flatbuffers Boost::mp11 safeint_interface
+   )
+ 
+diff --git a/cmake/tensorboard/compat/proto/CMakeLists.txt b/cmake/tensorboard/compat/proto/CMakeLists.txt
+index ad31e40..e6254ff 100644
+--- a/cmake/tensorboard/compat/proto/CMakeLists.txt
++++ b/cmake/tensorboard/compat/proto/CMakeLists.txt
+@@ -1,13 +1,6 @@
+ # Copyright (c) Microsoft Corporation. All rights reserved.
+ # Licensed under the MIT License.
+ 
+-FetchContent_Declare(
+-  tensorboard
+-  URL ${DEP_URL_tensorboard}
+-  URL_HASH SHA1=${DEP_SHA1_tensorboard}
+-)
+-FetchContent_MakeAvailable(tensorboard)
+-
+ set(TENSORBOARD_ROOT ${tensorboard_SOURCE_DIR})
+ 
+ # tensorboard protos

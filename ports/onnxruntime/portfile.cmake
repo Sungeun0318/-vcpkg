@@ -134,8 +134,13 @@ vcpkg_cmake_configure(
 vcpkg_cmake_build(TARGET onnxruntime LOGFILE_BASE build-onnxruntime)
 vcpkg_cmake_install()
 vcpkg_cmake_config_fixup(CONFIG_PATH lib/cmake/onnxruntime PACKAGE_NAME onnxruntime)
-vcpkg_copy_pdbs()
 vcpkg_fixup_pkgconfig() # pkg_check_modules(libonnxruntime)
+
+if(("openvino" IN_LIST FEATURES) AND VCPKG_TARGET_IS_WINDOWS)
+    file(RENAME "${CURRENT_PACKAGES_DIR}/debug/lib/onnxruntime_providers_openvino.dll" "${CURRENT_PACKAGES_DIR}/debug/bin/onnxruntime_providers_openvino.dll")
+    file(RENAME "${CURRENT_PACKAGES_DIR}/lib/onnxruntime_providers_openvino.dll" "${CURRENT_PACKAGES_DIR}/bin/onnxruntime_providers_openvino.dll")
+endif()
+vcpkg_copy_pdbs()
 
 if("framework" IN_LIST FEATURES)
     foreach(FRAMEWORK_NAME "onnxruntime.framework" "onnxruntime_objc.framework")

@@ -46,15 +46,15 @@ list(APPEND onnxruntime_EXTERNAL_LIBRARIES Boost::mp11)
 find_package(nlohmann_json CONFIG REQUIRED)
 list(APPEND onnxruntime_EXTERNAL_LIBRARIES nlohmann_json::nlohmann_json)
 
-#TODO: include clog first
 if (onnxruntime_ENABLE_CPUINFO)
   find_package(cpuinfo CONFIG REQUIRED)
   list(APPEND onnxruntime_EXTERNAL_LIBRARIES cpuinfo::cpuinfo)
 endif()
 
 if (NOT WIN32)
-  find_package(unofficial-nsync CONFIG REQUIRED)
-  list(APPEND onnxruntime_EXTERNAL_LIBRARIES unofficial::nsync::nsync_cpp)
+  find_package(unofficial-nsync CONFIG REQUIRED) # unofficial::nsync::nsync_cpp
+  add_library(nsync::nsync_cpp ALIAS unofficial::nsync::nsync_cpp)
+  list(APPEND onnxruntime_EXTERNAL_LIBRARIES nsync::nsync_cpp)
 endif()
 
 find_package(Microsoft.GSL CONFIG REQUIRED)
@@ -83,8 +83,8 @@ if (onnxruntime_USE_XNNPACK)
   endif()
   find_package(cpuinfo CONFIG REQUIRED)
   find_library(PTHREADPOOL_LIBRARY NAMES pthreadpool REQUIRED)
-  find_package(xnnpack CONFIG REQUIRED) # xnnpack
-  list(APPEND onnxruntime_EXTERNAL_LIBRARIES cpuinfo::cpuinfo ${PTHREADPOOL_LIBRARY} xnnpack)
+  find_library(XNNPACK_LIBRARY NAMES XNNPACK REQUIRED)
+  list(APPEND onnxruntime_EXTERNAL_LIBRARIES cpuinfo::cpuinfo ${PTHREADPOOL_LIBRARY} ${XNNPACK_LIBRARY})
 endif()
 
 if (onnxruntime_USE_MIMALLOC)
