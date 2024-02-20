@@ -1,6 +1,4 @@
-if(VCPKG_TARGET_IS_IOS)
-    vcpkg_check_linkage(ONLY_STATIC_LIBRARY)
-elseif(VCPKG_TARGET_IS_WINDOWS OR VCPKG_TARGET_IS_LINUX OR VCPKG_TARGET_IS_ANDROID)
+if(VCPKG_TARGET_IS_WINDOWS OR VCPKG_TARGET_IS_LINUX OR VCPKG_TARGET_IS_ANDROID)
     vcpkg_check_linkage(ONLY_DYNAMIC_LIBRARY)
 endif()
 if("framework" IN_LIST FEATURES)
@@ -64,6 +62,7 @@ vcpkg_check_features(OUT_FEATURE_OPTIONS FEATURE_OPTIONS
         framework onnxruntime_BUILD_OBJC
         nccl      onnxruntime_USE_NCCL
         mpi       onnxruntime_USE_MPI
+        minimal   onnxruntime_ORT_MINIMAL_BUILD
     INVERTED_FEATURES
         abseil    onnxruntime_DISABLE_ABSEIL
         cuda      onnxruntime_USE_MEMORY_EFFICIENT_ATTENTION
@@ -95,10 +94,8 @@ vcpkg_cmake_configure(
         ${FEATURE_OPTIONS}
         -DPython_EXECUTABLE:FILEPATH=${PYTHON3}
         -DProtobuf_PROTOC_EXECUTABLE:FILEPATH=${PROTOC}
-        -DInferenceEngine_DIR:PATH=${CURRENT_INSTALLED_DIR}/share/openvino
-        -Dngraph_DIR:PATH=${CURRENT_INSTALLED_DIR}/share/openvino
-        # -DProtobuf_USE_STATIC_LIBS=OFF
-        -DBUILD_PKGCONFIG_FILES=ON
+        -DCMAKE_DISABLE_FIND_PACKAGE_Git=ON
+        -DBUILD_PKGCONFIG_FILES=${BUILD_SHARED}
         -Donnxruntime_BUILD_SHARED_LIB=${BUILD_SHARED}
         -Donnxruntime_BUILD_WEBASSEMBLY=OFF
         -Donnxruntime_CROSS_COMPILING=${VCPKG_CROSSCOMPILING}
@@ -117,7 +114,7 @@ vcpkg_cmake_configure(
         -Donnxruntime_USE_NEURAL_SPEED=OFF
         -DUSE_NEURAL_SPEED=OFF
         # for ORT_BUILD_INFO
-        -DORT_GIT_COMMIT:STRING="5f0b62cde54f59bdeac7978c9f9c12d0a4bc56db"
+        -DORT_GIT_COMMIT:STRING="v${VERSION}"
         -DORT_GIT_BRANCH:STRING="v${VERSION}"
     OPTIONS_DEBUG
         -Donnxruntime_ENABLE_MEMLEAK_CHECKER=OFF
@@ -128,13 +125,15 @@ vcpkg_cmake_configure(
         onnxruntime_TENSORRT_PLACEHOLDER_BUILDER
         onnxruntime_USE_CUSTOM_DIRECTML
         onnxruntime_NVCC_THREADS
-        InferenceEngine_DIR
-        ngraph_DIR
+        Python_EXECUTABLE
+        ORT_GIT_COMMIT
+        ORT_GIT_BRANCH
 )
-vcpkg_cmake_build(TARGET onnxruntime LOGFILE_BASE build-onnxruntime)
 vcpkg_cmake_install()
-vcpkg_cmake_config_fixup(CONFIG_PATH lib/cmake/onnxruntime PACKAGE_NAME onnxruntime)
-vcpkg_fixup_pkgconfig() # pkg_check_modules(libonnxruntime)
+if(BUILD_SHARED)
+    vcpkg_cmake_config_fixup(CONFIG_PATH lib/cmake/onnxruntime PACKAGE_NAME onnxruntime)
+    vcpkg_fixup_pkgconfig() # pkg_check_modules(libonnxruntime)
+endif()
 
 if(("openvino" IN_LIST FEATURES) AND VCPKG_TARGET_IS_WINDOWS)
     file(RENAME "${CURRENT_PACKAGES_DIR}/debug/lib/onnxruntime_providers_openvino.dll" "${CURRENT_PACKAGES_DIR}/debug/bin/onnxruntime_providers_openvino.dll")

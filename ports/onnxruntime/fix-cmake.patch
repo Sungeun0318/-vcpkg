@@ -1,35 +1,18 @@
 diff --git a/cmake/CMakeLists.txt b/cmake/CMakeLists.txt
-index 94d650f..5d9c83e 100644
+index 94d650f..0f82c14 100644
 --- a/cmake/CMakeLists.txt
 +++ b/cmake/CMakeLists.txt
-@@ -36,7 +36,7 @@ set(CMAKE_C_STANDARD 99)
- include(CheckCXXCompilerFlag)
- include(CheckLanguage)
- include(CMakeDependentOption)
--include(FetchContent)
-+include(GNUInstallDirs) # Using vcpkg. See external/onnxruntime_vcpkg_deps.cmake
- include(CheckFunctionExists)
- 
- # TODO: update this once all system adapt c++20
-@@ -360,7 +360,6 @@ endif()
- set(RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin CACHE PATH "Single output directory for all binaries.")
- 
- 
--include(FetchContent)
- 
- function(set_msvc_c_cpp_compiler_warning_level warning_level)
-   if (NOT "${warning_level}" MATCHES "^[0-4]$")
-@@ -572,7 +571,8 @@ get_filename_component(ORTTRAINING_ROOT "${ORTTRAINING_ROOT}" ABSOLUTE)
+@@ -572,7 +572,8 @@ get_filename_component(ORTTRAINING_ROOT "${ORTTRAINING_ROOT}" ABSOLUTE)
  get_filename_component(REPO_ROOT "${REPO_ROOT}" ABSOLUTE)
  set(ONNXRUNTIME_INCLUDE_DIR ${REPO_ROOT}/include/onnxruntime)
  
 -include(external/onnxruntime_external_deps.cmake)
-+include(external/onnxruntime_vcpkg_deps.cmake)
++include(external/onnxruntime_vcpkg_deps.cmake) # see onnxruntime/portfile.cmake
 +list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/external")
  
  set(ORT_WARNING_FLAGS)
  if (WIN32)
-@@ -904,7 +904,7 @@ function(onnxruntime_set_compile_flags target_name)
+@@ -904,7 +905,7 @@ function(onnxruntime_set_compile_flags target_name)
        target_compile_definitions(${target_name} PRIVATE ORT_NEURAL_SPEED)
      endif()
  
@@ -38,7 +21,7 @@ index 94d650f..5d9c83e 100644
      if (onnxruntime_USE_CUDA)
        # Suppress a "conversion_function_not_usable" warning in gsl/span
        target_compile_options(${target_name} PRIVATE "$<$<COMPILE_LANGUAGE:CUDA>:SHELL:-Xcudafe \"--diag_suppress=conversion_function_not_usable\">")
-@@ -968,6 +968,7 @@ function(onnxruntime_set_compile_flags target_name)
+@@ -968,6 +969,7 @@ function(onnxruntime_set_compile_flags target_name)
        endif()
        target_compile_definitions(${target_name} PUBLIC -DNSYNC_ATOMIC_CPP11)
        onnxruntime_add_include_to_target(${target_name} nsync::nsync_cpp)
@@ -46,21 +29,7 @@ index 94d650f..5d9c83e 100644
      endif()
      foreach(ORT_FLAG ${ORT_PROVIDER_FLAGS})
        target_compile_definitions(${target_name} PRIVATE ${ORT_FLAG})
-@@ -1370,13 +1371,7 @@ endif()
- set(ORT_BUILD_INFO "ORT Build Info: ")
- find_package(Git)
- if (Git_FOUND)
--  execute_process(COMMAND ${GIT_EXECUTABLE} log -1 --format=%h
--      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
--      OUTPUT_VARIABLE ORT_GIT_COMMIT)
-   string(STRIP "${ORT_GIT_COMMIT}" ORT_GIT_COMMIT)
--  execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --abbrev-ref HEAD
--      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
--      OUTPUT_VARIABLE ORT_GIT_BRANCH)
-   string(STRIP "${ORT_GIT_BRANCH}" ORT_GIT_BRANCH)
-   string(APPEND ORT_BUILD_INFO "git-branch=${ORT_GIT_BRANCH}, git-commit-id=${ORT_GIT_COMMIT}, ")
- endif()
-@@ -1473,7 +1468,8 @@ if (onnxruntime_USE_DML)
+@@ -1473,7 +1475,8 @@ if (onnxruntime_USE_DML)
      message(FATAL_ERROR "The DirectML execution provider is only supported when building for Windows.")
    endif()
  
@@ -70,15 +39,23 @@ index 94d650f..5d9c83e 100644
  endif()
  
  if (onnxruntime_ENABLE_TRAINING_APIS)
+@@ -1736,6 +1739,7 @@ if (WIN32 AND NOT GDK_PLATFORM)
+   endif()
+ endif()
+ 
++include(GNUInstallDirs) # some targets requires this...
+ foreach(target_name ${ONNXRUNTIME_CMAKE_FILES})
+   include(${target_name}.cmake)
+ endforeach()
 diff --git a/cmake/onnxruntime.cmake b/cmake/onnxruntime.cmake
-index c900f4d..c4e012f 100644
+index c900f4d..8d5fcd6 100644
 --- a/cmake/onnxruntime.cmake
 +++ b/cmake/onnxruntime.cmake
 @@ -303,6 +303,9 @@ if(onnxruntime_BUILD_APPLE_FRAMEWORK)
    # If it's an onnxruntime library, extract .o files to a separate directory for each library to avoid any clashes
    # with filenames (e.g. utils.o)
    foreach(_LIB ${onnxruntime_INTERNAL_LIBRARIES} )
-+    if(NOT TARGET ${_LIB}) # if we didn't build from source. it may not a library
++    if(NOT TARGET ${_LIB}) # if we didn't build from source. it may not a target
 +      continue()
 +    endif()
      GET_TARGET_PROPERTY(_LIB_TYPE ${_LIB} TYPE)
@@ -94,6 +71,19 @@ index c900f4d..c4e012f 100644
      GET_TARGET_PROPERTY(_LIB_TYPE ${_LIB} TYPE)
      if(_LIB_TYPE STREQUAL "STATIC_LIBRARY")
        add_custom_command(TARGET onnxruntime POST_BUILD
+diff --git a/cmake/onnxruntime_mlas.cmake b/cmake/onnxruntime_mlas.cmake
+index 002da7b..6f4e7cc 100644
+--- a/cmake/onnxruntime_mlas.cmake
++++ b/cmake/onnxruntime_mlas.cmake
+@@ -676,7 +676,7 @@ block()
+ endblock()
+ 
+ 
+-if (NOT onnxruntime_ORT_MINIMAL_BUILD)
++if (NOT onnxruntime_ORT_MINIMAL_BUILD AND (NOT CMAKE_SYSTEM_NAME MATCHES iOS)) # Xcode requires Bundle Identifier...
+ 
+   #
+   # Command line tool for quantization and de-quantization of 2-D fp32 tensors
 diff --git a/cmake/onnxruntime_providers_openvino.cmake b/cmake/onnxruntime_providers_openvino.cmake
 index e26f0bf..5b9a02b 100644
 --- a/cmake/onnxruntime_providers_openvino.cmake
@@ -120,21 +110,3 @@ index 9c00703..65fb9f1 100644
      flatbuffers::flatbuffers Boost::mp11 safeint_interface
    )
  
-diff --git a/cmake/tensorboard/compat/proto/CMakeLists.txt b/cmake/tensorboard/compat/proto/CMakeLists.txt
-index ad31e40..e6254ff 100644
---- a/cmake/tensorboard/compat/proto/CMakeLists.txt
-+++ b/cmake/tensorboard/compat/proto/CMakeLists.txt
-@@ -1,13 +1,6 @@
- # Copyright (c) Microsoft Corporation. All rights reserved.
- # Licensed under the MIT License.
- 
--FetchContent_Declare(
--  tensorboard
--  URL ${DEP_URL_tensorboard}
--  URL_HASH SHA1=${DEP_SHA1_tensorboard}
--)
--FetchContent_MakeAvailable(tensorboard)
--
- set(TENSORBOARD_ROOT ${tensorboard_SOURCE_DIR})
- 
- # tensorboard protos
