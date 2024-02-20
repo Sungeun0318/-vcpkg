@@ -68,10 +68,6 @@ vcpkg_check_features(OUT_FEATURE_OPTIONS FEATURE_OPTIONS
         cuda      onnxruntime_USE_MEMORY_EFFICIENT_ATTENTION
 )
 
-if(VCPKG_TARGET_IS_OSX OR VCPKG_TARGET_IS_IOS)
-    set(GENERATOR_OPTIONS GENERATOR Xcode)
-endif()
-
 if("python" IN_LIST FEATURES)
     x_vcpkg_get_python_packages(
         PYTHON_VERSION 3
@@ -89,7 +85,6 @@ vcpkg_add_to_path(PREPEND "${PYTHON_PATH}")
 # see tools/ci_build/build.py
 vcpkg_cmake_configure(
     SOURCE_PATH "${SOURCE_PATH}/cmake"
-    ${GENERATOR_OPTIONS}
     OPTIONS
         ${FEATURE_OPTIONS}
         -DPython_EXECUTABLE:FILEPATH=${PYTHON3}
