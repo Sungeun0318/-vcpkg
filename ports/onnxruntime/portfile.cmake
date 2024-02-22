@@ -1,6 +1,3 @@
-if(VCPKG_TARGET_IS_WINDOWS OR VCPKG_TARGET_IS_LINUX OR VCPKG_TARGET_IS_ANDROID)
-    vcpkg_check_linkage(ONLY_DYNAMIC_LIBRARY)
-endif()
 if("framework" IN_LIST FEATURES)
     vcpkg_check_linkage(ONLY_DYNAMIC_LIBRARY)
 endif()

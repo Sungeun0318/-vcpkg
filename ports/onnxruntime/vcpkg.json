@@ -4,7 +4,6 @@
   "description": "ONNX Runtime: cross-platform, high performance ML inferencing and training accelerator",
   "homepage": "https://onnxruntime.ai/",
   "license": "MIT",
-  "supports": "(windows & !static) | linux | osx | ios | (android & !static)",
   "dependencies": [
     "boost-config",
     "boost-mp11",
