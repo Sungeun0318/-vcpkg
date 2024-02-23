@@ -1525,8 +1525,8 @@
       "port-version": 1
     },
     "ceres": {
-      "baseline": "2.1.0",
-      "port-version": 4
+      "baseline": "2.2.0",
+      "port-version": 0
     },
     "cfitsio": {
       "baseline": "3.49",
@@ -6406,7 +6406,7 @@
     },
     "openmvg": {
       "baseline": "2.0",
-      "port-version": 9
+      "port-version": 10
     },
     "openmvs": {
       "baseline": "2.1.0",
