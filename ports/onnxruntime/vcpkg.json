@@ -47,21 +47,6 @@
       "description": "Build with CoreML support",
       "supports": "osx | ios"
     },
-    "cuda": {
-      "description": "Build with CUDA/NCCL support",
-      "dependencies": [
-        "cuda",
-        "cudnn",
-        "nvidia-cutlass"
-      ]
-    },
-    "directml": {
-      "description": "Build with DirectML support",
-      "supports": "windows",
-      "dependencies": [
-        "directml"
-      ]
-    },
     "framework": {
       "description": "Artifact will be Apple framework",
       "supports": "osx | ios"
@@ -95,12 +80,6 @@
     },
     "tensorrt": {
       "description": "Build with NVIDIA TensorRT support"
-    },
-    "xnnpack": {
-      "description": "Build with XNNPack support",
-      "dependencies": [
-        "xnnpack"
-      ]
     }
   }
 }
