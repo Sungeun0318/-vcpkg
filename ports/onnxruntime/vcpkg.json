@@ -70,7 +70,7 @@
       ]
     },
     "python": {
-      "description": "Enable python buildings",
+      "description": "Enable python bindings",
       "dependencies": [
         {
           "name": "vcpkg-get-python-packages",
