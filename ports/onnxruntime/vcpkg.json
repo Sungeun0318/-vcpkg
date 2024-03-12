@@ -64,6 +64,8 @@
           "name": "openvino",
           "default-features": false,
           "features": [
+            "cpu",
+            "gpu",
             "onnx"
           ]
         }
