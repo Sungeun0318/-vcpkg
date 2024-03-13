@@ -105,8 +105,8 @@ vcpkg_cmake_configure(
         -Donnxruntime_USE_NEURAL_SPEED=OFF
         -DUSE_NEURAL_SPEED=OFF
         # for ORT_BUILD_INFO
-        -DORT_GIT_COMMIT:STRING="v${VERSION}"
-        -DORT_GIT_BRANCH:STRING="v${VERSION}"
+        "-DORT_GIT_COMMIT:STRING=v${VERSION}"
+        "-DORT_GIT_BRANCH:STRING=v${VERSION}"
     OPTIONS_DEBUG
         -Donnxruntime_ENABLE_MEMLEAK_CHECKER=OFF
         -Donnxruntime_ENABLE_MEMORY_PROFILE=OFF
