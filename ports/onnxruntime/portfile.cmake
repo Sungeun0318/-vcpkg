@@ -121,7 +121,7 @@ vcpkg_cmake_configure(
         ORT_GIT_BRANCH
 )
 vcpkg_cmake_install()
-if(BUILD_SHARED)
+if(VCPKG_LIBRARY_LINKAGE STREQUAL "dynamic")
     vcpkg_cmake_config_fixup(CONFIG_PATH lib/cmake/onnxruntime PACKAGE_NAME onnxruntime)
     vcpkg_fixup_pkgconfig() # pkg_check_modules(libonnxruntime)
 endif()
