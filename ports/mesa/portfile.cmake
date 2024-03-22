@@ -15,6 +15,7 @@ vcpkg_from_gitlab(
         dependencies.patch
         gallium-fix-build-with-llvm-17.patch
         clover-llvm-move-to-modern-pass-manager.patch
+        winflex-race.patch
 )
 
 x_vcpkg_get_python_packages(PYTHON_VERSION "3" OUT_PYTHON_VAR "PYTHON3" PACKAGES setuptools mako)
