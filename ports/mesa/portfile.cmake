@@ -18,6 +18,8 @@ vcpkg_from_gitlab(
 )
 
 x_vcpkg_get_python_packages(PYTHON_VERSION "3" OUT_PYTHON_VAR "PYTHON3" PACKAGES setuptools mako)
+get_filename_component(PYTHON3_DIR "${PYTHON3}" DIRECTORY)
+vcpkg_add_to_path(PREPEND "${PYTHON3_DIR}")
 
 vcpkg_find_acquire_program(FLEX)
 get_filename_component(FLEX_DIR "${FLEX}" DIRECTORY)
@@ -112,6 +114,8 @@ vcpkg_configure_meson(
         -Dzstd=enabled
         ${MESA_OPTIONS}
     ADDITIONAL_BINARIES
+        python=['${PYTHON3}','-I']
+        python3=['${PYTHON3}','-I']
         ${MESA_ADDITIONAL_BINARIES}
 )
 vcpkg_install_meson()
