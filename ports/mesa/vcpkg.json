@@ -133,6 +133,12 @@
           "platform": "arm | x64 | x86"
         }
       ]
+    },
+    "wayland": {
+      "description": "Build support for Wayland",
+      "dependencies": [
+        "wayland-protocols"
+      ]
     }
   }
 }

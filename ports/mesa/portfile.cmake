@@ -96,6 +96,10 @@ if(VCPKG_TARGET_IS_WINDOWS)
     endif()
 elseif(VCPKG_TARGET_IS_ANDROID)
     list(APPEND MESA_OPTIONS -Dplatforms=['android'])
+elseif("wayland" IN_LIST FEATURES)
+    list(APPEND MESA_OPTIONS -Dplatforms=['x11','wayland'])
+else()
+    list(APPEND MESA_OPTIONS -Dplatforms=['x11'])
 endif()
 
 vcpkg_configure_meson(
