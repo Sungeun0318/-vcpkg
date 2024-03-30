@@ -47,10 +47,6 @@
       "description": "Build with CoreML support",
       "supports": "osx | ios"
     },
-    "framework": {
-      "description": "Artifact will be Apple framework",
-      "supports": "osx | ios"
-    },
     "mpi": {
       "description": "Build with MPI support",
       "dependencies": [

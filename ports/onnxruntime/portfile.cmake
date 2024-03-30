@@ -1,5 +1,4 @@
-if(("framework" IN_LIST FEATURES) OR ("openvino" IN_LIST FEATURES))
-    # The Objective-C API requires onnxruntime_BUILD_SHARED_LIB to be enabled
+if("openvino" IN_LIST FEATURES)
     # The dependency target "onnxruntime_providers_shared" of target "onnxruntime_providers_openvino" does not exist
     vcpkg_check_linkage(ONLY_DYNAMIC_LIBRARY)
 endif()
@@ -140,14 +139,6 @@ if(("openvino" IN_LIST FEATURES) AND VCPKG_TARGET_IS_WINDOWS)
     file(RENAME "${CURRENT_PACKAGES_DIR}/lib/onnxruntime_providers_openvino.dll" "${CURRENT_PACKAGES_DIR}/bin/onnxruntime_providers_openvino.dll")
 endif()
 vcpkg_copy_pdbs()
-
-if("framework" IN_LIST FEATURES)
-    # foreach(FRAMEWORK_NAME "onnxruntime.framework" "onnxruntime_objc.framework")
-    #     file(RENAME "${CURRENT_PACKAGES_DIR}/debug/bin/${FRAMEWORK_NAME}" "${CURRENT_PACKAGES_DIR}/debug/lib/${FRAMEWORK_NAME}")
-    #     file(RENAME "${CURRENT_PACKAGES_DIR}/bin/${FRAMEWORK_NAME}" "${CURRENT_PACKAGES_DIR}/lib/${FRAMEWORK_NAME}")
-    # endforeach()
-    # file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/bin" "${CURRENT_PACKAGES_DIR}/bin")
-endif()
 
 file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/include")
 if(VCPKG_LIBRARY_LINKAGE STREQUAL "static")
