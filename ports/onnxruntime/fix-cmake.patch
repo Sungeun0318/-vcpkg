@@ -84,19 +84,6 @@ index 002da7b..6f4e7cc 100644
  
    #
    # Command line tool for quantization and de-quantization of 2-D fp32 tensors
-diff --git a/cmake/onnxruntime_providers_openvino.cmake b/cmake/onnxruntime_providers_openvino.cmake
-index e26f0bf..5b9a02b 100644
---- a/cmake/onnxruntime_providers_openvino.cmake
-+++ b/cmake/onnxruntime_providers_openvino.cmake
-@@ -45,7 +45,7 @@
-   if(NOT MSVC)
-     target_compile_options(onnxruntime_providers_openvino PRIVATE "-Wno-parentheses")
-   endif()
--  add_dependencies(onnxruntime_providers_openvino onnxruntime_providers_shared ${onnxruntime_EXTERNAL_DEPENDENCIES})
-+  add_dependencies(onnxruntime_providers_openvino ${onnxruntime_EXTERNAL_DEPENDENCIES})
-   target_include_directories(onnxruntime_providers_openvino SYSTEM PUBLIC ${ONNXRUNTIME_ROOT} ${CMAKE_CURRENT_BINARY_DIR} ${eigen_INCLUDE_DIRS} ${OpenVINO_INCLUDE_DIR} ${OPENVINO_INCLUDE_DIR_LIST} ${PYTHON_INCLUDE_DIRS} $ENV{OPENCL_INCS} $ENV{OPENCL_INCS}/../../cl_headers/)
-   target_link_libraries(onnxruntime_providers_openvino ${ONNXRUNTIME_PROVIDERS_SHARED} Boost::mp11 ${OPENVINO_LIB_LIST} ${ABSEIL_LIBS})
- 
 diff --git a/cmake/onnxruntime_providers_xnnpack.cmake b/cmake/onnxruntime_providers_xnnpack.cmake
 index 9c00703..65fb9f1 100644
 --- a/cmake/onnxruntime_providers_xnnpack.cmake
@@ -110,3 +97,29 @@ index 9c00703..65fb9f1 100644
      flatbuffers::flatbuffers Boost::mp11 safeint_interface
    )
  
+diff --git a/cmake/onnxruntime.cmake b/cmake/onnxruntime.cmake
+index 8d5fcd6..7258486 100644
+--- a/cmake/onnxruntime.cmake
++++ b/cmake/onnxruntime.cmake
+@@ -242,7 +242,7 @@ install(TARGETS onnxruntime
+         ARCHIVE   DESTINATION ${CMAKE_INSTALL_LIBDIR}
+         LIBRARY   DESTINATION ${CMAKE_INSTALL_LIBDIR}
+         RUNTIME   DESTINATION ${CMAKE_INSTALL_BINDIR}
+-        FRAMEWORK DESTINATION ${CMAKE_INSTALL_BINDIR})
++        FRAMEWORK DESTINATION ${CMAKE_INSTALL_LIBDIR})
+ 
+ 
+ if (WIN32 AND NOT CMAKE_CXX_STANDARD_LIBRARIES MATCHES kernel32.lib)
+diff --git a/cmake/onnxruntime_objectivec.cmake b/cmake/onnxruntime_objectivec.cmake
+index 4be2f51..5bf0a96 100644
+--- a/cmake/onnxruntime_objectivec.cmake
++++ b/cmake/onnxruntime_objectivec.cmake
+@@ -113,7 +113,7 @@ add_custom_command(TARGET onnxruntime_objc POST_BUILD
+         "$<TARGET_FILE:onnxruntime_objc>")
+ 
+ install(TARGETS onnxruntime_objc
+-    FRAMEWORK DESTINATION ${CMAKE_INSTALL_BINDIR})
++    FRAMEWORK DESTINATION ${CMAKE_INSTALL_LIBDIR})
+ 
+ if(onnxruntime_BUILD_UNIT_TESTS)
+     find_package(XCTest REQUIRED)

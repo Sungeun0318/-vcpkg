@@ -59,6 +59,7 @@
     },
     "openvino": {
       "description": "Build with OpenVINO support",
+      "supports": "!(osx | ios | android | emscripten)",
       "dependencies": [
         {
           "name": "openvino",

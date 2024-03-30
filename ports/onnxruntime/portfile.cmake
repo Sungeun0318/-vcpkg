@@ -1,4 +1,6 @@
-if("framework" IN_LIST FEATURES)
+if(("framework" IN_LIST FEATURES) OR ("openvino" IN_LIST FEATURES))
+    # The Objective-C API requires onnxruntime_BUILD_SHARED_LIB to be enabled
+    # The dependency target "onnxruntime_providers_shared" of target "onnxruntime_providers_openvino" does not exist
     vcpkg_check_linkage(ONLY_DYNAMIC_LIBRARY)
 endif()
 string(COMPARE EQUAL "${VCPKG_LIBRARY_LINKAGE}" "dynamic" BUILD_SHARED)
@@ -65,6 +67,13 @@ vcpkg_check_features(OUT_FEATURE_OPTIONS FEATURE_OPTIONS
         cuda      onnxruntime_USE_MEMORY_EFFICIENT_ATTENTION
 )
 
+if("openvino" IN_LIST FEATURES)
+    list(APPEND FEATURE_OPTIONS
+        "-DInferenceEngine_DIR=${CURRENT_INSTALLED_DIR}/share/openvino"
+        "-Dngraph_DIR=${CURRENT_INSTALLED_DIR}/share/openvino"
+    )
+endif()
+
 if("python" IN_LIST FEATURES)
     x_vcpkg_get_python_packages(
         PYTHON_VERSION 3
@@ -122,7 +131,7 @@ vcpkg_cmake_configure(
 )
 vcpkg_cmake_install()
 if(VCPKG_LIBRARY_LINKAGE STREQUAL "dynamic")
-    vcpkg_cmake_config_fixup(CONFIG_PATH lib/cmake/onnxruntime PACKAGE_NAME onnxruntime)
+    vcpkg_cmake_config_fixup(CONFIG_PATH lib/cmake/onnxruntime)
     vcpkg_fixup_pkgconfig() # pkg_check_modules(libonnxruntime)
 endif()
 
@@ -133,11 +142,11 @@ endif()
 vcpkg_copy_pdbs()
 
 if("framework" IN_LIST FEATURES)
-    foreach(FRAMEWORK_NAME "onnxruntime.framework" "onnxruntime_objc.framework")
-        file(RENAME "${CURRENT_PACKAGES_DIR}/debug/bin/${FRAMEWORK_NAME}" "${CURRENT_PACKAGES_DIR}/debug/lib/${FRAMEWORK_NAME}")
-        file(RENAME "${CURRENT_PACKAGES_DIR}/bin/${FRAMEWORK_NAME}" "${CURRENT_PACKAGES_DIR}/lib/${FRAMEWORK_NAME}")
-    endforeach()
-    file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/bin" "${CURRENT_PACKAGES_DIR}/bin")
+    # foreach(FRAMEWORK_NAME "onnxruntime.framework" "onnxruntime_objc.framework")
+    #     file(RENAME "${CURRENT_PACKAGES_DIR}/debug/bin/${FRAMEWORK_NAME}" "${CURRENT_PACKAGES_DIR}/debug/lib/${FRAMEWORK_NAME}")
+    #     file(RENAME "${CURRENT_PACKAGES_DIR}/bin/${FRAMEWORK_NAME}" "${CURRENT_PACKAGES_DIR}/lib/${FRAMEWORK_NAME}")
+    # endforeach()
+    # file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/bin" "${CURRENT_PACKAGES_DIR}/bin")
 endif()
 
 file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/include")
