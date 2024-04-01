@@ -123,3 +123,289 @@ index 4be2f51..5bf0a96 100644
  
  if(onnxruntime_BUILD_UNIT_TESTS)
      find_package(XCTest REQUIRED)
+diff --git a/cmake/CMakeLists.txt b/cmake/CMakeLists.txt
+index 9c38c3b..abd92b7 100644
+--- a/cmake/CMakeLists.txt
++++ b/cmake/CMakeLists.txt
+@@ -1100,9 +1100,7 @@ endfunction()
+ function(onnxruntime_add_include_to_target dst_target)
+     foreach(src_target ${ARGN})
+       if(TARGET ${src_target})
+-        target_include_directories(${dst_target} PRIVATE $<TARGET_PROPERTY:${src_target},INTERFACE_INCLUDE_DIRECTORIES>)
+-        target_compile_definitions(${dst_target} PRIVATE $<TARGET_PROPERTY:${src_target},INTERFACE_COMPILE_DEFINITIONS>)
+-        target_sources(${dst_target} PRIVATE $<TARGET_PROPERTY:${src_target},INTERFACE_SOURCES>)
++        target_link_libraries(${dst_target} PUBLIC ${src_target})
+       endif()
+     endforeach()
+ endfunction()
+@@ -1786,7 +1784,7 @@ if (onnxruntime_ENABLE_EXTERNAL_CUSTOM_OP_SCHEMAS)
+   )
+ endif()
+ 
+-if(TARGET onnxruntime)
++if(TRUE)
+ # Install
+   include(GNUInstallDirs)
+   include(CMakePackageConfigHelpers)
+diff --git a/cmake/onnxruntime_common.cmake b/cmake/onnxruntime_common.cmake
+index 43d5fa9..c441304 100644
+--- a/cmake/onnxruntime_common.cmake
++++ b/cmake/onnxruntime_common.cmake
+@@ -129,7 +129,7 @@ target_include_directories(onnxruntime_common
+         ${OPTIONAL_LITE_INCLUDE_DIR})
+ 
+ 
+-target_link_libraries(onnxruntime_common PUBLIC safeint_interface ${GSL_TARGET} ${ABSEIL_LIBS})
++target_link_libraries(onnxruntime_common PUBLIC ${GSL_TARGET} ${ABSEIL_LIBS})
+ 
+ add_dependencies(onnxruntime_common ${onnxruntime_EXTERNAL_DEPENDENCIES})
+ 
+@@ -215,7 +215,7 @@ endif()
+ 
+ if (NOT onnxruntime_BUILD_SHARED_LIB)
+   install(DIRECTORY ${PROJECT_SOURCE_DIR}/../include/onnxruntime/core/common  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/onnxruntime/core)
+-  install(TARGETS onnxruntime_common
++  install(TARGETS onnxruntime_common EXPORT ${PROJECT_NAME}Targets
+             ARCHIVE   DESTINATION ${CMAKE_INSTALL_LIBDIR}
+             LIBRARY   DESTINATION ${CMAKE_INSTALL_LIBDIR}
+             RUNTIME   DESTINATION ${CMAKE_INSTALL_BINDIR}
+diff --git a/cmake/onnxruntime_flatbuffers.cmake b/cmake/onnxruntime_flatbuffers.cmake
+index 3ab4c19..d289f69 100644
+--- a/cmake/onnxruntime_flatbuffers.cmake
++++ b/cmake/onnxruntime_flatbuffers.cmake
+@@ -22,7 +22,7 @@ if (FLATBUFFERS_BUILD_FLATC)
+   add_dependencies(onnxruntime_flatbuffers flatc)
+ endif()
+ if (NOT onnxruntime_BUILD_SHARED_LIB)
+-    install(TARGETS onnxruntime_flatbuffers
++    install(TARGETS onnxruntime_flatbuffers EXPORT ${PROJECT_NAME}Targets
+             ARCHIVE   DESTINATION ${CMAKE_INSTALL_LIBDIR}
+             LIBRARY   DESTINATION ${CMAKE_INSTALL_LIBDIR}
+             RUNTIME   DESTINATION ${CMAKE_INSTALL_BINDIR}
+diff --git a/cmake/onnxruntime_framework.cmake b/cmake/onnxruntime_framework.cmake
+index c9bf2ac..eb9315a 100644
+--- a/cmake/onnxruntime_framework.cmake
++++ b/cmake/onnxruntime_framework.cmake
+@@ -69,9 +69,9 @@ endif()
+ if(onnxruntime_USE_TENSORRT OR onnxruntime_USE_NCCL)
+ # TODO: for now, core framework depends on CUDA. It should be moved to TensorRT EP
+ # TODO: provider_bridge_ort.cc should not include nccl.h
+-target_include_directories(onnxruntime_framework PRIVATE ${ONNXRUNTIME_ROOT} ${eigen_INCLUDE_DIRS} ${onnxruntime_CUDNN_HOME}/include PUBLIC ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
++target_include_directories(onnxruntime_framework PRIVATE ${ONNXRUNTIME_ROOT} ${eigen_INCLUDE_DIRS} ${onnxruntime_CUDNN_HOME}/include ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
+ else()
+-target_include_directories(onnxruntime_framework PRIVATE ${ONNXRUNTIME_ROOT} ${eigen_INCLUDE_DIRS} PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
++target_include_directories(onnxruntime_framework PRIVATE ${ONNXRUNTIME_ROOT} ${eigen_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
+ endif()
+ # Needed for the provider interface, as it includes training headers when training is enabled
+ if (onnxruntime_ENABLE_TRAINING_OPS)
+@@ -90,7 +90,7 @@ if (onnxruntime_ENABLE_ATEN)
+   set(DLPACK_INCLUDE_DIR ${dlpack_SOURCE_DIR}/include)
+   target_include_directories(onnxruntime_framework PRIVATE ${DLPACK_INCLUDE_DIR})
+ endif()
+-onnxruntime_add_include_to_target(onnxruntime_framework onnxruntime_common onnx onnx_proto ${PROTOBUF_LIB} flatbuffers::flatbuffers safeint_interface Boost::mp11 nlohmann_json::nlohmann_json)
++onnxruntime_add_include_to_target(onnxruntime_framework onnxruntime_common onnx onnx_proto ${PROTOBUF_LIB} flatbuffers::flatbuffers Boost::mp11 nlohmann_json::nlohmann_json)
+ 
+ if (onnxruntime_USE_MIMALLOC)
+     target_link_libraries(onnxruntime_framework mimalloc-static)
+@@ -125,7 +125,7 @@ endif()
+ 
+ if (NOT onnxruntime_BUILD_SHARED_LIB)
+   install(DIRECTORY ${PROJECT_SOURCE_DIR}/../include/onnxruntime/core/framework  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/onnxruntime/core)
+-  install(TARGETS onnxruntime_framework
++  install(TARGETS onnxruntime_framework EXPORT ${PROJECT_NAME}Targets
+             ARCHIVE   DESTINATION ${CMAKE_INSTALL_LIBDIR}
+             LIBRARY   DESTINATION ${CMAKE_INSTALL_LIBDIR}
+             RUNTIME   DESTINATION ${CMAKE_INSTALL_BINDIR}
+diff --git a/cmake/onnxruntime_graph.cmake b/cmake/onnxruntime_graph.cmake
+index 3f532ec..1a711f9 100644
+--- a/cmake/onnxruntime_graph.cmake
++++ b/cmake/onnxruntime_graph.cmake
+@@ -89,7 +89,7 @@ endif()
+ 
+ onnxruntime_add_static_library(onnxruntime_graph ${onnxruntime_graph_lib_src})
+ add_dependencies(onnxruntime_graph onnx_proto flatbuffers::flatbuffers)
+-onnxruntime_add_include_to_target(onnxruntime_graph onnxruntime_common ${WIL_TARGET} onnx onnx_proto ${PROTOBUF_LIB} flatbuffers::flatbuffers safeint_interface Boost::mp11)
++onnxruntime_add_include_to_target(onnxruntime_graph onnxruntime_common ${WIL_TARGET} onnx onnx_proto ${PROTOBUF_LIB} flatbuffers::flatbuffers Boost::mp11)
+ 
+ if (MSVC)
+   set(ONNX_PROTOBUF_NATVIS_FILE "onnx_protobuf.natvis")
+@@ -150,7 +150,7 @@ endif()
+ 
+ if (NOT onnxruntime_BUILD_SHARED_LIB)
+   install(DIRECTORY ${PROJECT_SOURCE_DIR}/../include/onnxruntime/core/graph  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/onnxruntime/core)
+-  install(TARGETS onnxruntime_graph
++  install(TARGETS onnxruntime_graph EXPORT ${PROJECT_NAME}Targets
+             ARCHIVE   DESTINATION ${CMAKE_INSTALL_LIBDIR}
+             LIBRARY   DESTINATION ${CMAKE_INSTALL_LIBDIR}
+             RUNTIME   DESTINATION ${CMAKE_INSTALL_BINDIR}
+diff --git a/cmake/onnxruntime_mlas.cmake b/cmake/onnxruntime_mlas.cmake
+index 6f4e7cc..af1c5ae 100644
+--- a/cmake/onnxruntime_mlas.cmake
++++ b/cmake/onnxruntime_mlas.cmake
+@@ -653,7 +653,7 @@ if (WIN32)
+ endif()
+ 
+ if (NOT onnxruntime_BUILD_SHARED_LIB)
+-    install(TARGETS onnxruntime_mlas
++    install(TARGETS onnxruntime_mlas EXPORT ${PROJECT_NAME}Targets
+             ARCHIVE   DESTINATION ${CMAKE_INSTALL_LIBDIR}
+             LIBRARY   DESTINATION ${CMAKE_INSTALL_LIBDIR}
+             RUNTIME   DESTINATION ${CMAKE_INSTALL_BINDIR}
+diff --git a/cmake/onnxruntime_optimizer.cmake b/cmake/onnxruntime_optimizer.cmake
+index f15d5b8..c994fce 100644
+--- a/cmake/onnxruntime_optimizer.cmake
++++ b/cmake/onnxruntime_optimizer.cmake
+@@ -124,7 +124,7 @@ set_target_properties(onnxruntime_optimizer PROPERTIES FOLDER "ONNXRuntime")
+ 
+ if (NOT onnxruntime_BUILD_SHARED_LIB)
+   install(DIRECTORY ${PROJECT_SOURCE_DIR}/../include/onnxruntime/core/optimizer  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/onnxruntime/core)
+-  install(TARGETS onnxruntime_optimizer
++  install(TARGETS onnxruntime_optimizer EXPORT ${PROJECT_NAME}Targets
+             ARCHIVE   DESTINATION ${CMAKE_INSTALL_LIBDIR}
+             LIBRARY   DESTINATION ${CMAKE_INSTALL_LIBDIR}
+             RUNTIME   DESTINATION ${CMAKE_INSTALL_BINDIR}
+diff --git a/cmake/onnxruntime_providers_coreml.cmake b/cmake/onnxruntime_providers_coreml.cmake
+index aa8c355..fe6d397 100644
+--- a/cmake/onnxruntime_providers_coreml.cmake
++++ b/cmake/onnxruntime_providers_coreml.cmake
+@@ -14,7 +14,7 @@
+       "${COREML_PROTO_ROOT}/*.proto"
+     )
+     onnxruntime_add_static_library(onnxruntime_coreml_proto ${coreml_proto_srcs})
+-    target_include_directories(onnxruntime_coreml_proto PUBLIC $<TARGET_PROPERTY:${PROTOBUF_LIB},INTERFACE_INCLUDE_DIRECTORIES> "${CMAKE_CURRENT_BINARY_DIR}")
++    target_include_directories(onnxruntime_coreml_proto PUBLIC $<TARGET_PROPERTY:${PROTOBUF_LIB},INTERFACE_INCLUDE_DIRECTORIES> PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+     target_compile_definitions(onnxruntime_coreml_proto PUBLIC $<TARGET_PROPERTY:${PROTOBUF_LIB},INTERFACE_COMPILE_DEFINITIONS>)
+     set_target_properties(onnxruntime_coreml_proto PROPERTIES COMPILE_FLAGS "-fvisibility=hidden")
+     set_target_properties(onnxruntime_coreml_proto PROPERTIES COMPILE_FLAGS "-fvisibility-inlines-hidden")
+@@ -27,7 +27,7 @@
+     )
+ 
+     if (NOT onnxruntime_BUILD_SHARED_LIB)
+-      install(TARGETS onnxruntime_coreml_proto
++      install(TARGETS onnxruntime_coreml_proto EXPORT ${PROJECT_NAME}Targets
+               ARCHIVE   DESTINATION ${CMAKE_INSTALL_LIBDIR}
+               LIBRARY   DESTINATION ${CMAKE_INSTALL_LIBDIR}
+               RUNTIME   DESTINATION ${CMAKE_INSTALL_BINDIR}
+@@ -99,9 +99,9 @@
+   set_target_properties(onnxruntime_providers_coreml PROPERTIES LINKER_LANGUAGE CXX)
+ 
+   if (NOT onnxruntime_BUILD_SHARED_LIB)
+-    install(TARGETS onnxruntime_providers_coreml
++    install(TARGETS onnxruntime_providers_coreml EXPORT ${PROJECT_NAME}Targets
+             ARCHIVE   DESTINATION ${CMAKE_INSTALL_LIBDIR}
+             LIBRARY   DESTINATION ${CMAKE_INSTALL_LIBDIR}
+             RUNTIME   DESTINATION ${CMAKE_INSTALL_BINDIR}
+             FRAMEWORK DESTINATION ${CMAKE_INSTALL_BINDIR})
+-  endif()
+\ No newline at end of file
++  endif()
+diff --git a/cmake/onnxruntime_providers_cpu.cmake b/cmake/onnxruntime_providers_cpu.cmake
+index b81a5c7..f156f8d 100644
+--- a/cmake/onnxruntime_providers_cpu.cmake
++++ b/cmake/onnxruntime_providers_cpu.cmake
+@@ -260,7 +260,7 @@ if (NOT onnxruntime_MINIMAL_BUILD AND NOT onnxruntime_EXTENDED_MINIMAL_BUILD
+   message(FATAL_ERROR "onnxruntime_providers_shared unknown platform, need to specify shared library exports for it")
+   endif()
+ 
+-  install(TARGETS onnxruntime_providers_shared
++  install(TARGETS onnxruntime_providers_shared EXPORT ${PROJECT_NAME}Targets
+           ARCHIVE  DESTINATION ${CMAKE_INSTALL_LIBDIR}
+           LIBRARY  DESTINATION ${CMAKE_INSTALL_LIBDIR}
+           RUNTIME  DESTINATION ${CMAKE_INSTALL_BINDIR}
+@@ -268,7 +268,7 @@ if (NOT onnxruntime_MINIMAL_BUILD AND NOT onnxruntime_EXTENDED_MINIMAL_BUILD
+ endif()
+ 
+ if (NOT onnxruntime_BUILD_SHARED_LIB)
+-  install(TARGETS onnxruntime_providers
++  install(TARGETS onnxruntime_providers EXPORT ${PROJECT_NAME}Targets
+           ARCHIVE   DESTINATION ${CMAKE_INSTALL_LIBDIR}
+           LIBRARY   DESTINATION ${CMAKE_INSTALL_LIBDIR}
+           RUNTIME   DESTINATION ${CMAKE_INSTALL_BINDIR}
+diff --git a/cmake/onnxruntime_providers_nnapi.cmake b/cmake/onnxruntime_providers_nnapi.cmake
+index 5ac25a3..2aae34d 100644
+--- a/cmake/onnxruntime_providers_nnapi.cmake
++++ b/cmake/onnxruntime_providers_nnapi.cmake
+@@ -76,7 +76,7 @@
+   endif()
+ 
+   if (NOT onnxruntime_BUILD_SHARED_LIB)
+-    install(TARGETS onnxruntime_providers_nnapi
++    install(TARGETS onnxruntime_providers_nnapi EXPORT ${PROJECT_NAME}Targets
+             ARCHIVE   DESTINATION ${CMAKE_INSTALL_LIBDIR}
+             LIBRARY   DESTINATION ${CMAKE_INSTALL_LIBDIR}
+             RUNTIME   DESTINATION ${CMAKE_INSTALL_BINDIR}
+diff --git a/cmake/onnxruntime_providers_openvino.cmake b/cmake/onnxruntime_providers_openvino.cmake
+index e26f0bf..717f6c1 100644
+--- a/cmake/onnxruntime_providers_openvino.cmake
++++ b/cmake/onnxruntime_providers_openvino.cmake
+@@ -75,7 +75,7 @@
+     message(FATAL_ERROR "onnxruntime_providers_openvino unknown platform, need to specify shared library exports for it")
+   endif()
+ 
+-  install(TARGETS onnxruntime_providers_openvino
++  install(TARGETS onnxruntime_providers_openvino EXPORT ${PROJECT_NAME}Targets
+           ARCHIVE  DESTINATION ${CMAKE_INSTALL_LIBDIR}
+           LIBRARY  DESTINATION ${CMAKE_INSTALL_LIBDIR}
+           RUNTIME  DESTINATION ${CMAKE_INSTALL_BINDIR})
+\ No newline at end of file
+diff --git a/cmake/onnxruntime_providers_rocm.cmake b/cmake/onnxruntime_providers_rocm.cmake
+index b662682..4eb8749 100644
+--- a/cmake/onnxruntime_providers_rocm.cmake
++++ b/cmake/onnxruntime_providers_rocm.cmake
+@@ -217,7 +217,7 @@
+     target_compile_definitions(onnxruntime_providers_rocm PRIVATE ENABLE_ATEN)
+   endif()
+ 
+-  install(TARGETS onnxruntime_providers_rocm
++  install(TARGETS onnxruntime_providers_rocm EXPORT ${PROJECT_NAME}Targets
+           ARCHIVE  DESTINATION ${CMAKE_INSTALL_LIBDIR}
+           LIBRARY  DESTINATION ${CMAKE_INSTALL_LIBDIR}
+           RUNTIME  DESTINATION ${CMAKE_INSTALL_BINDIR})
+diff --git a/cmake/onnxruntime_providers_xnnpack.cmake b/cmake/onnxruntime_providers_xnnpack.cmake
+index 65fb9f1..9899b5f 100644
+--- a/cmake/onnxruntime_providers_xnnpack.cmake
++++ b/cmake/onnxruntime_providers_xnnpack.cmake
+@@ -25,7 +25,7 @@
+   set_target_properties(onnxruntime_providers_xnnpack PROPERTIES LINKER_LANGUAGE CXX)
+ 
+   if (NOT onnxruntime_BUILD_SHARED_LIB)
+-    install(TARGETS onnxruntime_providers_xnnpack
++    install(TARGETS onnxruntime_providers_xnnpack EXPORT ${PROJECT_NAME}Targets
+             ARCHIVE   DESTINATION ${CMAKE_INSTALL_LIBDIR}
+             LIBRARY   DESTINATION ${CMAKE_INSTALL_LIBDIR}
+             RUNTIME   DESTINATION ${CMAKE_INSTALL_BINDIR}
+diff --git a/cmake/onnxruntime_session.cmake b/cmake/onnxruntime_session.cmake
+index 79bee3b..c49653b 100644
+--- a/cmake/onnxruntime_session.cmake
++++ b/cmake/onnxruntime_session.cmake
+@@ -30,7 +30,7 @@ endif()
+ source_group(TREE ${REPO_ROOT} FILES ${onnxruntime_session_srcs})
+ 
+ onnxruntime_add_static_library(onnxruntime_session ${onnxruntime_session_srcs})
+-onnxruntime_add_include_to_target(onnxruntime_session onnxruntime_common onnxruntime_framework onnx onnx_proto ${PROTOBUF_LIB} flatbuffers::flatbuffers Boost::mp11 safeint_interface nlohmann_json::nlohmann_json)
++onnxruntime_add_include_to_target(onnxruntime_session onnxruntime_common onnxruntime_framework onnx onnx_proto ${PROTOBUF_LIB} flatbuffers::flatbuffers Boost::mp11 nlohmann_json::nlohmann_json)
+ if(onnxruntime_ENABLE_INSTRUMENT)
+   target_compile_definitions(onnxruntime_session PUBLIC ONNXRUNTIME_ENABLE_INSTRUMENT)
+ endif()
+@@ -63,7 +63,7 @@ endif()
+ 
+ if (NOT onnxruntime_BUILD_SHARED_LIB)
+     install(DIRECTORY ${PROJECT_SOURCE_DIR}/../include/onnxruntime/core/session  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/onnxruntime/core)
+-    install(TARGETS onnxruntime_session
++    install(TARGETS onnxruntime_session EXPORT ${PROJECT_NAME}Targets
+             ARCHIVE   DESTINATION ${CMAKE_INSTALL_LIBDIR}
+             LIBRARY   DESTINATION ${CMAKE_INSTALL_LIBDIR}
+             RUNTIME   DESTINATION ${CMAKE_INSTALL_BINDIR}
+diff --git a/cmake/onnxruntime_util.cmake b/cmake/onnxruntime_util.cmake
+index ae7e842..94e1ea1 100644
+--- a/cmake/onnxruntime_util.cmake
++++ b/cmake/onnxruntime_util.cmake
+@@ -22,7 +22,7 @@ if (WIN32)
+ endif()
+ 
+ if (NOT onnxruntime_BUILD_SHARED_LIB)
+-    install(TARGETS onnxruntime_util
++    install(TARGETS onnxruntime_util EXPORT ${PROJECT_NAME}Targets
+             ARCHIVE   DESTINATION ${CMAKE_INSTALL_LIBDIR}
+             LIBRARY   DESTINATION ${CMAKE_INSTALL_LIBDIR}
+             RUNTIME   DESTINATION ${CMAKE_INSTALL_BINDIR}

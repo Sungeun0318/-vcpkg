@@ -70,10 +70,7 @@ list(APPEND onnxruntime_EXTERNAL_LIBRARIES Eigen3::Eigen)
 find_package(wil CONFIG REQUIRED)
 list(APPEND onnxruntime_EXTERNAL_LIBRARIES WIL::WIL)
 
-add_library(safeint_interface INTERFACE)
 find_path(SAFEINT_INCLUDE_DIRS "SafeInt.hpp" REQUIRED)
-target_include_directories(safeint_interface INTERFACE ${SAFEINT_INCLUDE_DIRS})
-list(APPEND onnxruntime_EXTERNAL_LIBRARIES safeint_interface)
 
 # XNNPACK EP
 if (onnxruntime_USE_XNNPACK)

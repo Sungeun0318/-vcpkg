@@ -53,6 +53,7 @@ vcpkg_check_features(OUT_FEATURE_OPTIONS FEATURE_OPTIONS
         nnapi     onnxruntime_USE_NNAPI_BUILTIN
         azure     onnxruntime_USE_AZURE
         llvm      onnxruntime_USE_LLVM
+        rocm      onnxruntime_USE_ROCM
         test      onnxruntime_BUILD_UNIT_TESTS
         test      onnxruntime_BUILD_BENCHMARKS
         test      onnxruntime_RUN_ONNX_TESTS
@@ -129,8 +130,8 @@ vcpkg_cmake_configure(
         ORT_GIT_BRANCH
 )
 vcpkg_cmake_install()
+vcpkg_cmake_config_fixup(CONFIG_PATH lib/cmake/onnxruntime)
 if(VCPKG_LIBRARY_LINKAGE STREQUAL "dynamic")
-    vcpkg_cmake_config_fixup(CONFIG_PATH lib/cmake/onnxruntime)
     vcpkg_fixup_pkgconfig() # pkg_check_modules(libonnxruntime)
 endif()
 
