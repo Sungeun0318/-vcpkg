@@ -3362,7 +3362,7 @@
     },
     "hdf5": {
       "baseline": "1.14.2",
-      "port-version": 0
+      "port-version": 1
     },
     "healpix": {
       "baseline": "1.12.10",
