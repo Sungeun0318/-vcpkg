@@ -38,8 +38,9 @@ include(external/protobuf_function.cmake)
 find_package(date CONFIG REQUIRED)
 list(APPEND onnxruntime_EXTERNAL_LIBRARIES date::date)
 
-find_package(Boost REQUIRED)
+# see Hints of FindBoost.cmake
 find_path(BOOST_INCLUDEDIR "boost/mp11.hpp" REQUIRED)
+find_package(Boost REQUIRED)
 add_library(Boost::mp11 ALIAS Boost::headers)
 list(APPEND onnxruntime_EXTERNAL_LIBRARIES Boost::mp11)
 

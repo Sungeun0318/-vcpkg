@@ -17,6 +17,7 @@ vcpkg_from_github(
         fix-llvm-rc-unicode.patch
 )
 file(COPY "${CMAKE_CURRENT_LIST_DIR}/onnxruntime_vcpkg_deps.cmake" DESTINATION "${SOURCE_PATH}/cmake/external")
+file(COPY "${CMAKE_CURRENT_LIST_DIR}/project-config-template.cmake" DESTINATION "${SOURCE_PATH}/cmake/")
 
 find_program(PROTOC NAMES protoc PATHS "${CURRENT_HOST_INSTALLED_DIR}/tools/protobuf" REQUIRED NO_DEFAULT_PATH NO_CMAKE_PATH)
 message(STATUS "Using protoc: ${PROTOC}")

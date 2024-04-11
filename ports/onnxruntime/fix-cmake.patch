@@ -409,3 +409,25 @@ index ae7e842..94e1ea1 100644
              ARCHIVE   DESTINATION ${CMAKE_INSTALL_LIBDIR}
              LIBRARY   DESTINATION ${CMAKE_INSTALL_LIBDIR}
              RUNTIME   DESTINATION ${CMAKE_INSTALL_BINDIR}
+diff --git a/cmake/CMakeLists.txt b/cmake/CMakeLists.txt
+index abd92b7..6c908eb 100644
+--- a/cmake/CMakeLists.txt
++++ b/cmake/CMakeLists.txt
+@@ -1788,16 +1788,12 @@ if(TRUE)
+ # Install
+   include(GNUInstallDirs)
+   include(CMakePackageConfigHelpers)
+-  set(PROJECT_CONFIG_CONTENT "@PACKAGE_INIT@\n")
+-  string(APPEND PROJECT_CONFIG_CONTENT
+-        "include(\"\${CMAKE_CURRENT_LIST_DIR}/${PROJECT_NAME}Targets.cmake\")")
+-  file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/PROJECT_CONFIG_FILE" ${PROJECT_CONFIG_CONTENT})
+   install(EXPORT ${PROJECT_NAME}Targets
+     NAMESPACE ${PROJECT_NAME}::
+     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
+ # Create config for find_package()
+   configure_package_config_file(
+-    "${CMAKE_CURRENT_BINARY_DIR}/PROJECT_CONFIG_FILE" ${PROJECT_NAME}Config.cmake
++    "${PROJECT_SOURCE_DIR}/project-config-template.cmake" ${PROJECT_NAME}Config.cmake
+     INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
+ 
+   write_basic_package_version_file(
