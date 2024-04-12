@@ -1,7 +1,7 @@
 include(CMakeFindDependencyMacro)
 
-if(NOT TARGET SERF:serf)
-    add_library(SERF:serf UNKNOWN IMPORTED)
+if(NOT TARGET unofficial:SERF:serf)
+    add_library(unofficial:SERF:serf UNKNOWN IMPORTED)
 
     find_dependency(OpenSSL)
     find_dependency(ZLIB)
@@ -11,7 +11,7 @@ if(NOT TARGET SERF:serf)
     find_library(SERF_LIBRARY_RELEASE NAMES serf-1 PATHS "${CURRENT_PACKAGES_DIR}/lib" NO_DEFAULT_PATH)
     find_library(SERF_LIBRARY_DEBUG NAMES serf-1 PATHS "${CURRENT_PACKAGES_DIR}/debug/lib" NO_DEFAULT_PATH)
 
-    set_target_properties(SERF:serf PROPERTIES
+    set_target_properties(unofficial:SERF:serf PROPERTIES
         INTERFACE_INCLUDE_DIRECTORIES "${SERF_INCLUDE_DIR}"
         IMPORTED_LOCATION_RELEASE "${SERF_LIBRARY_RELEASE}"
         IMPORTED_LOCATION_DEBUG "${SERF_LIBRARY_DEBUG}"
