@@ -813,6 +813,8 @@ ompl:x64-linux=fail
 omplapp:arm-neon-android=fail
 omplapp:arm64-android=fail
 omplapp:x64-android=fail
+# Fails in NDK 25.x, but pass in NDK 26+
+onnxruntime:arm64-android=fail
 onednn:x64-android=fail
 openblas:arm-neon-android=fail
 openblas:arm64-android=fail
