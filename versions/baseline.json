@@ -4924,6 +4924,10 @@
       "baseline": "3.0.3",
       "port-version": 1
     },
+    "libsigsegv": {
+      "baseline": "2.14.0",
+      "port-version": 0
+    },
     "libslirp": {
       "baseline": "4.7.0",
       "port-version": 0
