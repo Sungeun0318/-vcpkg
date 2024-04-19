@@ -45,6 +45,7 @@ vcpkg_check_features(OUT_FEATURE_OPTIONS FEATURE_OPTIONS
         winidn      USE_WIN32_IDN
         websockets  ENABLE_WEBSOCKETS
         zstd        CURL_ZSTD
+        rtmp        USE_LIBRTMP
     INVERTED_FEATURES
         ldap        CURL_DISABLE_LDAP
         ldap        CURL_DISABLE_LDAPS
