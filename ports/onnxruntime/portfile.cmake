@@ -1,7 +1,3 @@
-if("openvino" IN_LIST FEATURES)
-    # The dependency target "onnxruntime_providers_shared" of target "onnxruntime_providers_openvino" does not exist
-    vcpkg_check_linkage(ONLY_DYNAMIC_LIBRARY)
-endif()
 string(COMPARE EQUAL "${VCPKG_LIBRARY_LINKAGE}" "dynamic" BUILD_SHARED)
 
 vcpkg_from_github(
