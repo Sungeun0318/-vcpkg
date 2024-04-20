@@ -1,13 +1,15 @@
 string(COMPARE EQUAL "${VCPKG_LIBRARY_LINKAGE}" "dynamic" BUILD_SHARED)
 
+
+
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO microsoft/onnxruntime
     REF "v${VERSION}"
-    SHA512 63f1b8a8ede1d45d68c341c0df60ee360e689d513626ac2ad07b50930651321bd6cf661f628bd6768c10a0b3029ced51ad0df05060be028f0e820512ad4c5bc1
+    SHA512 f24e333ad113e15733867fae237c3495f93e373b2998508deeebb061ce9a56c444bf68fc49ae251bcc45539d0695f3ae758d73dc3c42bc01bbd7cfaa8561c793
     PATCHES
+        fix-onnxruntime-pr-19966.patch # https://github.com/microsoft/onnxruntime/pull/19966 for OpenVINO 2024.0+
         fix-cmake.patch
-        fix-source-flatbuffers.patch
         fix-sources.patch
         fix-clang-cl-simd-compile.patch
         fix-llvm-rc-unicode.patch
@@ -64,13 +66,6 @@ vcpkg_check_features(OUT_FEATURE_OPTIONS FEATURE_OPTIONS
         cuda      onnxruntime_USE_MEMORY_EFFICIENT_ATTENTION
 )
 
-if("openvino" IN_LIST FEATURES)
-    list(APPEND FEATURE_OPTIONS
-        "-DInferenceEngine_DIR=${CURRENT_INSTALLED_DIR}/share/openvino"
-        "-Dngraph_DIR=${CURRENT_INSTALLED_DIR}/share/openvino"
-    )
-endif()
-
 if("python" IN_LIST FEATURES)
     x_vcpkg_get_python_packages(
         PYTHON_VERSION 3
@@ -92,7 +87,6 @@ vcpkg_cmake_configure(
         "-DPython_EXECUTABLE:FILEPATH=${PYTHON3}"
         "-DProtobuf_PROTOC_EXECUTABLE:FILEPATH=${PROTOC}"
         -DCMAKE_DISABLE_FIND_PACKAGE_Git=ON
-        -DBUILD_PKGCONFIG_FILES=${BUILD_SHARED}
         -Donnxruntime_BUILD_SHARED_LIB=${BUILD_SHARED}
         -Donnxruntime_BUILD_WEBASSEMBLY=OFF
         -Donnxruntime_CROSS_COMPILING=${VCPKG_CROSSCOMPILING}
@@ -128,7 +122,7 @@ vcpkg_cmake_configure(
 )
 vcpkg_cmake_install()
 vcpkg_cmake_config_fixup(CONFIG_PATH lib/cmake/onnxruntime)
-if(VCPKG_LIBRARY_LINKAGE STREQUAL "dynamic")
+if(NOT VCPKG_TARGET_IS_WINDOWS)
     vcpkg_fixup_pkgconfig() # pkg_check_modules(libonnxruntime)
 endif()
 

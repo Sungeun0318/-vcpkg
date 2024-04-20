@@ -1,6 +1,6 @@
 {
   "name": "onnxruntime",
-  "version": "1.17.0",
+  "version": "1.17.3",
   "description": "ONNX Runtime: cross-platform, high performance ML inferencing and training accelerator",
   "homepage": "https://onnxruntime.ai/",
   "license": "MIT",

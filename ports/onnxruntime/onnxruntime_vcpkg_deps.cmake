@@ -113,7 +113,5 @@ endif()
 
 if (onnxruntime_USE_OPENVINO)
   find_package(OpenVINO REQUIRED)
-  # deceive ENV{INTEL_OPENVINO_DIR} usages in CMakeLists.txt
-  set(ENV{INTEL_OPENVINO_DIR} "${OpenVINO_VERSION_MAJOR}.${OpenVINO_VERSION_MINOR}") # "2023.0"
   # list(APPEND onnxruntime_EXTERNAL_LIBRARIES openvino::runtime)
 endif()
