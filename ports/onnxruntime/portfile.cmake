@@ -1,7 +1,5 @@
 string(COMPARE EQUAL "${VCPKG_LIBRARY_LINKAGE}" "dynamic" BUILD_SHARED)
 
-
-
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO microsoft/onnxruntime
@@ -86,6 +84,7 @@ vcpkg_cmake_configure(
         ${FEATURE_OPTIONS}
         "-DPython_EXECUTABLE:FILEPATH=${PYTHON3}"
         "-DProtobuf_PROTOC_EXECUTABLE:FILEPATH=${PROTOC}"
+        -DBUILD_PKGCONFIG_FILES=OFF # https://github.com/microsoft/onnxruntime/blob/56b660f36940a919295e6f1e18ad3a9a93a10bf7/cmake/CMakeLists.txt#L1746-L1756
         -DCMAKE_DISABLE_FIND_PACKAGE_Git=ON
         -Donnxruntime_BUILD_SHARED_LIB=${BUILD_SHARED}
         -Donnxruntime_BUILD_WEBASSEMBLY=OFF
@@ -122,9 +121,6 @@ vcpkg_cmake_configure(
 )
 vcpkg_cmake_install()
 vcpkg_cmake_config_fixup(CONFIG_PATH lib/cmake/onnxruntime)
-if(NOT VCPKG_TARGET_IS_WINDOWS)
-    vcpkg_fixup_pkgconfig() # pkg_check_modules(libonnxruntime)
-endif()
 
 if(("openvino" IN_LIST FEATURES) AND VCPKG_TARGET_IS_WINDOWS)
     file(RENAME "${CURRENT_PACKAGES_DIR}/debug/lib/onnxruntime_providers_openvino.dll" "${CURRENT_PACKAGES_DIR}/debug/bin/onnxruntime_providers_openvino.dll")
