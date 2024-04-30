@@ -40,6 +40,19 @@ if(SEARCH_PATH STREQUAL "/")
 endif()
 
 set(FFMPEG_VERSION "@FFMPEG_VERSION@")
+set(TRIPLET_SYSTEM_ARCH @TRIPLET_SYSTEM_ARCH@)
+
+function(findWindowsSDK retval)
+    file(GLOB files "C:/Program Files*/Windows Kits/*/Lib/*/um/${TRIPLET_SYSTEM_ARCH}/psapi.lib")
+    if(NOT files)
+      set("${retval}" "" PARENT_SCOPE)
+    endif()
+    list(SORT files COMPARE NATURAL)
+    list(GET files -1 lastfile)
+    get_filename_component(path ${lastfile} DIRECTORY)
+    set("${retval}" "${path}" PARENT_SCOPE)
+endfunction()
+findWindowsSDK(winsdk_path)
 
 function(append_dependencies out)
     cmake_parse_arguments(PARSE_ARGV 1 "arg" "DEBUG" "NAMES" "")
@@ -67,7 +80,7 @@ function(append_dependencies out)
             # first look in ${path} specifically to ensure we find the right release/debug variant
             find_library(FFMPEG_DEPENDENCY_${lib_name}_${config} NAMES "${lib_name}" PATHS "${path}" NO_DEFAULT_PATH)
             # if not found there, must be a system dependency, so look elsewhere
-            find_library(FFMPEG_DEPENDENCY_${lib_name}_${config} NAMES "${lib_name}" REQUIRED)
+            find_library(FFMPEG_DEPENDENCY_${lib_name}_${config} NAMES "${lib_name}" PATHS "${winsdk_path}" REQUIRED)
             list(APPEND ${out} "${FFMPEG_DEPENDENCY_${lib_name}_${config}}")
         endif()
     endforeach()
