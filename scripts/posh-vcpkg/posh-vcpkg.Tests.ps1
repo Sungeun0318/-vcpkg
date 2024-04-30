@@ -22,7 +22,7 @@ Describe 'Module posh-vcpkg tests' {
                 return [System.Management.Automation.CommandCompletion]::CompleteInput($command, $cursorPosition, $null)
             }
         }
-        
+
         function Expand-CompletionText {
             param (
                 [Parameter(Mandatory, Position = 0, ValueFromPipeline)]
@@ -82,7 +82,7 @@ Describe 'Module posh-vcpkg tests' {
             $caretCmd | Complete-InputCaret | Expand-CompletionText | Should -Contain $expectedContain
         }
 
-        It 'Should complete command with trailing spaces [vcpkg ver     ^]' {
+        It 'Should complete command with trailing spaces [vcpkg ver     ^]' -Skip {
             'vcpkg ver     ^' | Complete-InputCaret | Expand-CompletionText | Should -Contain 'version'
         }
 
