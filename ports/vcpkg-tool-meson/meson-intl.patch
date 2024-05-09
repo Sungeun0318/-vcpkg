@@ -1,7 +1,20 @@
 diff --git a/mesonbuild/dependencies/misc.py b/mesonbuild/dependencies/misc.py
+index 23bc316..49bf292 100644
 --- a/mesonbuild/dependencies/misc.py
 +++ b/mesonbuild/dependencies/misc.py
-@@ -593,7 +593,8 @@ iconv_factory = DependencyFactory(
+@@ -430,8 +430,9 @@ class IntlSystemDependency(SystemDependency):
+         if h[0] and self.link_args:
+             self.is_found = True
+ 
+-            if self.static:
+-                if not self._add_sub_dependency(iconv_factory(env, self.for_machine, {'static': True})):
++            code = '''#include <libintl.h>\n\nint main() {\n    gettext("Hello world");\n}'''
++            if self.static or not self.clib_compiler.links(code, env, dependencies=[self])[0]:
++                if not self._add_sub_dependency(iconv_factory(env, self.for_machine, {'static': self.static})):
+                     self.is_found = False
+                     return
+ 
+@@ -602,7 +603,8 @@ packages['iconv'] = iconv_factory = DependencyFactory(
  
  packages['intl'] = intl_factory = DependencyFactory(
      'intl',
