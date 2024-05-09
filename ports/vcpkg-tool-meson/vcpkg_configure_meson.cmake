@@ -434,7 +434,7 @@ function(vcpkg_configure_meson)
         configure_file("${CMAKE_CURRENT_FUNCTION_LIST_DIR}/meson.template.in" "${meson_input_file_${buildtype}}" @ONLY)
 
         vcpkg_execute_required_process(
-            COMMAND ${MESON} ${arg_OPTIONS} ${arg_OPTIONS_${buildtype}} ${arg_SOURCE_PATH}
+            COMMAND ${MESON} setup ${arg_OPTIONS} ${arg_OPTIONS_${buildtype}} ${arg_SOURCE_PATH}
             WORKING_DIRECTORY "${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-${suffix_${buildtype}}"
             LOGNAME config-${TARGET_TRIPLET}-${suffix_${buildtype}}
             SAVE_LOG_FILES
