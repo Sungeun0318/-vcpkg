@@ -3374,7 +3374,7 @@
     },
     "hdf5": {
       "baseline": "1.14.2",
-      "port-version": 0
+      "port-version": 1
     },
     "healpix": {
       "baseline": "1.12.10",
@@ -4163,6 +4163,10 @@
     "libadwaita": {
       "baseline": "1.3.2",
       "port-version": 2
+    },
+    "libaec": {
+      "baseline": "1.1.3",
+      "port-version": 0
     },
     "libaes-siv": {
       "baseline": "2020-10-15",
