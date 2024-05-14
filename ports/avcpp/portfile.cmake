@@ -12,6 +12,7 @@ vcpkg_from_github(
     PATCHES
         0002-av_init_packet_deprecation.patch
         fix-pkgconfig-location.patch
+        fix-dependencies.patch
 )
 
 string(COMPARE EQUAL "${VCPKG_LIBRARY_LINKAGE}" "static" AVCPP_ENABLE_STATIC)
