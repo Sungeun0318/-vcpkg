@@ -11,3 +11,9 @@ intl_t = executable('intl_t',
   sources: ['intl_t.c'],
   dependencies: [intl_dep],
 )
+
+intl_cmake_dep = dependency('Intl', method: 'cmake', required: true)
+intl_cmake_t = executable('intl_cmake_t',
+  sources: ['intl_t.c'],
+  dependencies: [intl_cmake_dep],
+)
