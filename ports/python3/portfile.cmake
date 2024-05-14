@@ -379,6 +379,23 @@ endif()
 
 if(VCPKG_TARGET_IS_WINDOWS)
   vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/tools/python3/Lib/distutils/command/build_ext.py" "'libs'" "'../../lib'")
+      file(WRITE "${CURRENT_PACKAGES_DIR}/tools/python3/Lib/site-packages/sitecustomize.py"
+[[
+import os
+import sys
+from pathlib import Path
+
+vcpkg_bin_path = Path(sys.prefix + '/../../bin')
+if sys.executable.endswith('\\tools\\python3\\python.exe') and vcpkg_bin_path.is_dir():
+  os.add_dll_directory(vcpkg_bin_path)
+else:
+  raise RuntimeError(f" \n \
+   ******************************************************\n \
+   {sys.executable} seems to be running outside of vcpkg.\n \
+   {os.path.abspath(__file__)} is not meant to be deployed, please delete it! \n \
+   ******************************************************")
+]]
+)
 else()
   vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/lib/python3.${PYTHON_VERSION_MINOR}/distutils/command/build_ext.py" "'libs'" "'../../lib'")
   file(COPY_FILE "${CURRENT_PACKAGES_DIR}/tools/python3/python3.${PYTHON_VERSION_MINOR}" "${CURRENT_PACKAGES_DIR}/tools/python3/python3")
