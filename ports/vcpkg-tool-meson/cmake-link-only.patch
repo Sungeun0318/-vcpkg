@@ -1,0 +1,73 @@
+diff --git a/mesonbuild/cmake/generator.py b/mesonbuild/cmake/generator.py
+index 750e4c2..69e81d3 100644
+--- a/mesonbuild/cmake/generator.py
++++ b/mesonbuild/cmake/generator.py
+@@ -140,6 +140,7 @@ def parse_generator_expressions(
+         'TARGET_NAME_IF_EXISTS': lambda x: x if x in trace.targets else '',
+         'TARGET_PROPERTY': target_property,
+         'TARGET_FILE': target_file,
++        'LINK_ONLY': lambda x: ('*LINK_ONLY*' + x) if x in trace.targets else '',
+     }
+ 
+     # Recursively evaluate generator expressions
+diff --git a/mesonbuild/cmake/tracetargets.py b/mesonbuild/cmake/tracetargets.py
+index 20c7462..3aa322e 100644
+--- a/mesonbuild/cmake/tracetargets.py
++++ b/mesonbuild/cmake/tracetargets.py
+@@ -39,12 +39,15 @@ def resolve_cmake_trace_targets(target_name: str,
+ 
+     processed_targets: T.List[str] = []
+     while len(targets) > 0:
+-        curr = targets.pop(0)
++        pristine_curr = targets.pop(0)
+ 
+         # Skip already processed targets
+-        if curr in processed_targets:
++        if pristine_curr in processed_targets:
+             continue
+ 
++        curr = pristine_curr.replace('*LINK_ONLY*','')
++        link_only = curr != pristine_curr
++
+         if curr not in trace.targets:
+             if reg_is_lib.match(curr):
+                 res.libraries += [curr]
+@@ -69,16 +72,16 @@ def resolve_cmake_trace_targets(target_name: str,
+         cfg = ''
+         mlog.debug(tgt)
+ 
+-        if 'INTERFACE_INCLUDE_DIRECTORIES' in tgt.properties:
++        if not link_only and 'INTERFACE_INCLUDE_DIRECTORIES' in tgt.properties:
+             res.include_directories += [x for x in tgt.properties['INTERFACE_INCLUDE_DIRECTORIES'] if x]
+ 
+         if 'INTERFACE_LINK_OPTIONS' in tgt.properties:
+             res.link_flags += [x for x in tgt.properties['INTERFACE_LINK_OPTIONS'] if x]
+ 
+-        if 'INTERFACE_COMPILE_DEFINITIONS' in tgt.properties:
++        if not link_only and 'INTERFACE_COMPILE_DEFINITIONS' in tgt.properties:
+             res.public_compile_opts += ['-D' + re.sub('^-D', '', x) for x in tgt.properties['INTERFACE_COMPILE_DEFINITIONS'] if x]
+ 
+-        if 'INTERFACE_COMPILE_OPTIONS' in tgt.properties:
++        if not link_only and 'INTERFACE_COMPILE_OPTIONS' in tgt.properties:
+             res.public_compile_opts += [x for x in tgt.properties['INTERFACE_COMPILE_OPTIONS'] if x]
+ 
+         if 'IMPORTED_CONFIGURATIONS' in tgt.properties:
+@@ -106,14 +109,16 @@ def resolve_cmake_trace_targets(target_name: str,
+         if 'LINK_LIBRARIES' in tgt.properties:
+             targets += [x for x in tgt.properties['LINK_LIBRARIES'] if x]
+         if 'INTERFACE_LINK_LIBRARIES' in tgt.properties:
+-            targets += [x for x in tgt.properties['INTERFACE_LINK_LIBRARIES'] if x]
++            link = lambda lib: ('*LINK_ONLY*' + lib.replace('*LINK_ONLY*','')) if link_only else lib
++            targets += [link(x) for x in tgt.properties['INTERFACE_LINK_LIBRARIES'] if x]
++            mlog.debug(f'  ### "{targets}"')
+ 
+         if f'IMPORTED_LINK_DEPENDENT_LIBRARIES_{cfg}' in tgt.properties:
+             targets += [x for x in tgt.properties[f'IMPORTED_LINK_DEPENDENT_LIBRARIES_{cfg}'] if x]
+         elif 'IMPORTED_LINK_DEPENDENT_LIBRARIES' in tgt.properties:
+             targets += [x for x in tgt.properties['IMPORTED_LINK_DEPENDENT_LIBRARIES'] if x]
+ 
+-        processed_targets += [curr]
++        processed_targets += [pristine_curr]
+ 
+     res.include_directories = sorted(set(res.include_directories))
+     res.link_flags = sorted(set(res.link_flags))
