@@ -1,0 +1,29 @@
+diff --git a/gio/gdbus-2.0/codegen/utils.py b/gio/gdbus-2.0/codegen/utils.py
+index 08f1ba9..81af2f4 100644
+--- a/gio/gdbus-2.0/codegen/utils.py
++++ b/gio/gdbus-2.0/codegen/utils.py
+@@ -19,6 +19,11 @@
+ #
+ # Author: David Zeuthen <davidz@redhat.com>
+ 
++import sys
++print('====debug macos python')
++print(sys.executable)
++print(sys.path)
++
+ import packaging.version
+ import os
+ import sys
+diff --git a/meson.build b/meson.build
+index a400965..576a939 100644
+--- a/meson.build
++++ b/meson.build
+@@ -2420,7 +2420,7 @@ endif
+ 
+ glib_conf.set('HAVE_PROC_SELF_CMDLINE', have_proc_self_cmdline)
+ 
+-python = import('python').find_installation(modules: ['packaging'])
++python = import('python').find_installation()
+ # used for '#!/usr/bin/env <name>'
+ python_name = 'python3'
+ 
