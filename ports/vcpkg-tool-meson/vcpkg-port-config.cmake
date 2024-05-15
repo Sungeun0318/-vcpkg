@@ -38,6 +38,7 @@ if(NOT SCRIPT_MESON)
             "${CMAKE_CURRENT_LIST_DIR}/meson-intl.patch"
             "${CMAKE_CURRENT_LIST_DIR}/adjust-python-dep.patch"
             "${CMAKE_CURRENT_LIST_DIR}/remove-freebsd-pcfile-specialization.patch"
+            "${CMAKE_CURRENT_LIST_DIR}/cmake-link-only.patch"
     )
     file(MAKE_DIRECTORY "${path_to_search}")
     file(RENAME "${path_to_search}-tmp/meson-${ref}/meson.py" "${path_to_search}/meson.py")

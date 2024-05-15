@@ -14,6 +14,7 @@ set(files
   adjust-python-dep.patch
   adjust-args.patch
   remove-freebsd-pcfile-specialization.patch
+  cmake-link-only.patch
   meson.template.in
 )
 
@@ -31,6 +32,7 @@ file(COPY "${CMAKE_CURRENT_LIST_DIR}/vcpkg_configure_meson.cmake"
           "${CMAKE_CURRENT_LIST_DIR}/adjust-python-dep.patch"
           "${CMAKE_CURRENT_LIST_DIR}/adjust-args.patch"
           "${CMAKE_CURRENT_LIST_DIR}/remove-freebsd-pcfile-specialization.patch"
+          "${CMAKE_CURRENT_LIST_DIR}/cmake-link-only.patch"
           "${CMAKE_CURRENT_LIST_DIR}/meson.template.in"
           DESTINATION "${CURRENT_PACKAGES_DIR}/share/${PORT}")
 
