@@ -2,11 +2,12 @@ diff --git a/mesonbuild/cmake/generator.py b/mesonbuild/cmake/generator.py
 index 750e4c2..69e81d3 100644
 --- a/mesonbuild/cmake/generator.py
 +++ b/mesonbuild/cmake/generator.py
-@@ -140,6 +140,7 @@ def parse_generator_expressions(
+@@ -140,6 +140,8 @@ def parse_generator_expressions(
          'TARGET_NAME_IF_EXISTS': lambda x: x if x in trace.targets else '',
          'TARGET_PROPERTY': target_property,
          'TARGET_FILE': target_file,
-+        'LINK_ONLY': lambda x: ('*LINK_ONLY*' + x) if x in trace.targets else '',
++        'LINK_ONLY': lambda x: '*LINK_ONLY*' + x.replace('*LINK_ONLY*', ''),
++        'TARGET_NAME': lambda x: x,
      }
  
      # Recursively evaluate generator expressions
@@ -52,14 +53,13 @@ index 20c7462..3aa322e 100644
              res.public_compile_opts += [x for x in tgt.properties['INTERFACE_COMPILE_OPTIONS'] if x]
  
          if 'IMPORTED_CONFIGURATIONS' in tgt.properties:
-@@ -106,14 +109,16 @@ def resolve_cmake_trace_targets(target_name: str,
+@@ -106,14 +109,15 @@ def resolve_cmake_trace_targets(target_name: str,
          if 'LINK_LIBRARIES' in tgt.properties:
              targets += [x for x in tgt.properties['LINK_LIBRARIES'] if x]
          if 'INTERFACE_LINK_LIBRARIES' in tgt.properties:
 -            targets += [x for x in tgt.properties['INTERFACE_LINK_LIBRARIES'] if x]
 +            link = lambda lib: ('*LINK_ONLY*' + lib.replace('*LINK_ONLY*','')) if link_only else lib
 +            targets += [link(x) for x in tgt.properties['INTERFACE_LINK_LIBRARIES'] if x]
-+            mlog.debug(f'  ### "{targets}"')
  
          if f'IMPORTED_LINK_DEPENDENT_LIBRARIES_{cfg}' in tgt.properties:
              targets += [x for x in tgt.properties[f'IMPORTED_LINK_DEPENDENT_LIBRARIES_{cfg}'] if x]
